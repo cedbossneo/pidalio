@@ -3,18 +3,21 @@ GOARCH := amd64
 GOPATH := $(shell pwd)
 LGOBIN := $(shell pwd)/bin
 ENVS := GOOS=$(GOOS) GOARCH=$(GOARCH) GOPATH=$(GOPATH) LGOBIN=$(LGOBIN)
-.PHONY: core deploy glide test update_deps
+.PHONY: core glide test update_deps docker_build docker_pre docker_deps
 
 default: core
 
 core:
-	$(ENVS) go build -o bin/pidalio github.com/cedbossneo/pidalio
+	$(ENVS) go build -o bin/pidalio-$(GOOS)-$(GOARCH) github.com/cedbossneo/pidalio
 
-deploy:
-	docker build -t cedbossneo/pidalio .
+docker_pre:
+	docker build -t pidalio-build -f dockerfiles/build/Dockerfile dockerfiles/build/
 
-push:
-	docker push cedbossneo/pidalio
+docker_deps: docker_pre
+	docker run --rm -v "$(PWD)":/usr/src/myapp -w /usr/src/myapp pidalio-build make GOOS=linux deps
+
+docker_build: docker_deps
+	docker run --rm -v "$(PWD)":/usr/src/myapp -w /usr/src/myapp pidalio-build make GOOS=linux
 
 deps:
 	mkdir -p $(GOPATH)/bin

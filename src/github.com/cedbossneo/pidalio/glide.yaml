@@ -6,3 +6,5 @@ import:
   version: master
 - package: github.com/spacemonkeygo/openssl
   version: master
+- package: github.com/YakLabs/k8s-client
+  version: master

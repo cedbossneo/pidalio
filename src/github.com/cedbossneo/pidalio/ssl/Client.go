@@ -11,7 +11,7 @@ import (
 )
 
 type RootCerts struct {
-	certificate *openssl.Certificate
+	Certificate *openssl.Certificate
 	privateKey openssl.PrivateKey
 	Token string
 }
@@ -72,7 +72,7 @@ func CreateRootCertificate(etcd etcd.EtcdClient, token string, key openssl.Priva
 	return certificate
 }
 
-func CreateServerCertificate(rootCerts RootCerts, additionalAltNames []string) ([]byte, []byte, []byte) {
+func CreateServerCertificate(rootCerts RootCerts, additionalAltNames []string) ([]byte, []byte, []byte, error) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName: "kube-apiserver",
@@ -83,7 +83,8 @@ func CreateServerCertificate(rootCerts RootCerts, additionalAltNames []string) (
 		Serial: big.NewInt(int64(1)),
 	}, key)
 	if err != nil {
-		log.Fatal("Error while creating Server CA", err)
+		log.Print("Error while creating Server CA", err)
+		return nil, nil, nil, err
 	}
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
@@ -96,16 +97,17 @@ func CreateServerCertificate(rootCerts RootCerts, additionalAltNames []string) (
 	for i := 0; i < len(additionalAltNames); i++ {
 		certificate.AddExtension(openssl.NID_subject_alt_name, additionalAltNames[i])
 	}
-	certificate.SetIssuer(rootCerts.certificate)
+	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
 	if err != nil {
-		log.Fatal("Error while creating Server CA", err)
+		log.Print("Error while creating Server CA", err)
+		return nil, nil, nil, err
 	}
-	return cert, pemPrivateKey, pemPublicKey
+	return cert, pemPrivateKey, pemPublicKey, nil
 }
 
-func CreateAdminCertificate(rootCerts RootCerts) ([]byte, []byte, []byte) {
+func CreateAdminCertificate(rootCerts RootCerts) ([]byte, []byte, []byte, error) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName: "kube-admin",
@@ -116,18 +118,20 @@ func CreateAdminCertificate(rootCerts RootCerts) ([]byte, []byte, []byte) {
 		Serial: big.NewInt(int64(1)),
 	}, key)
 	if err != nil {
-	log.Fatal("Error while creating Admin CA", err)
+		log.Print("Error while creating Admin CA", err)
+		return nil, nil, nil, err
 	}
-	certificate.SetIssuer(rootCerts.certificate)
+	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
 	if err != nil {
-		log.Fatal("Error while creating Admin CA", err)
+		log.Print("Error while creating Admin CA", err)
+		return nil, nil, nil, err
 	}
-	return cert, pemPrivateKey, pemPublicKey
+	return cert, pemPrivateKey, pemPublicKey, nil
 }
 
-func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte, []byte, []byte) {
+func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte, []byte, []byte, error) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName: fqdn,
@@ -138,18 +142,20 @@ func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte,
 		Serial: big.NewInt(int64(1)),
 	}, key)
 	if err != nil {
-		log.Fatal("Error while creating Node CA", err)
+		log.Print("Error while creating Node CA", err)
+		return nil, nil, nil, err
 	}
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
 	certificate.AddExtension(openssl.NID_subject_alt_name, fmt.Sprintf("IP:%s", ip))
-	certificate.SetIssuer(rootCerts.certificate)
+	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
 	if err != nil {
-		log.Fatal("Error while creating Node CA", err)
+		log.Print("Error while creating Node CA", err)
+		return nil, nil, nil, err
 	}
-	return cert, pemPrivateKey, pemPublicKey
+	return cert, pemPrivateKey, pemPublicKey, nil
 }
 
 func LoadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
@@ -171,14 +177,14 @@ func LoadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
 			log.Fatal("Error while loading Root Certificate", err)
 		}
 		return RootCerts{
-			certificate: cert,
+			Certificate: cert,
 			privateKey: key,
 		}
 	} else {
 		key := CreateRootKeys(etcd, token)
 		cert := CreateRootCertificate(etcd, token, key)
 		return RootCerts{
-			certificate: cert,
+			Certificate: cert,
 			privateKey: key,
 			Token: token,
 		}
