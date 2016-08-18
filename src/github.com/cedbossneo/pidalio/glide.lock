@@ -1,0 +1,39 @@
+hash: e09a291d4affeff89af51e682894e856386a7c4a23e69eb4b7a09cd88b4d9610
+updated: 2016-08-18T11:21:08.712885+02:00
+imports:
+- name: github.com/coreos/etcd
+  version: a20d4a2d31e0a34bd6c07a45931703e6164d2b65
+  subpackages:
+  - client
+  - pkg/pathutil
+  - pkg/types
+- name: github.com/gin-gonic/gin
+  version: 5caaac4c5c712a9e7a7de29e6c24ef46c753017f
+  subpackages:
+  - binding
+  - render
+- name: github.com/golang/protobuf
+  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
+  subpackages:
+  - proto
+- name: github.com/manucorporat/sse
+  version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+- name: github.com/spacemonkeygo/openssl
+  version: a0b9b65330879b8c85bc7be7ab1608eafe318b5e
+  subpackages:
+  - utils
+- name: github.com/spacemonkeygo/spacelog
+  version: f936fb050dc6b5fe4a96b485a6f069e8bdc59aeb
+- name: github.com/ugorji/go
+  version: f1f1a805ed361a0e078bb537e4ea78cd37dcf065
+  subpackages:
+  - codec
+- name: golang.org/x/net
+  version: f315505cf3349909cdf013ea56690da34e96a451
+  subpackages:
+  - context
+- name: gopkg.in/go-playground/validator.v8
+  version: c193cecd124b5cc722d7ee5538e945bdb3348435
+- name: gopkg.in/yaml.v2
+  version: 53feefa2559fb8dfa8d81baad31be332c97d6c77
+testImports: []

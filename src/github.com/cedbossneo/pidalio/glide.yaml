@@ -1,0 +1,8 @@
+package: github.com/cedbossneo/pidalio
+import:
+- package: github.com/gin-gonic/gin
+  version: master
+- package: github.com/coreos/etcd/client
+  version: master
+- package: github.com/spacemonkeygo/openssl
+  version: master
