@@ -4,10 +4,11 @@ import (
 	"github.com/cedbossneo/pidalio/etcd"
 	"github.com/cedbossneo/pidalio/ssl"
 	"github.com/cedbossneo/pidalio/api"
+	"os"
 )
 
 func main() {
-	etcd := etcd.CreateEtcdClient([]string{"http://localhost:2379"})
-	rootCerts := ssl.LoadRootCerts(etcd, "aaaaaaaaaaaaaaaa")
+	etcdClient := etcd.CreateEtcdClient([]string{os.Getenv("ETCD_URI")})
+	rootCerts := ssl.LoadRootCerts(etcdClient, os.Getenv("TOKEN")[0:16])
 	api.CreateAPIServer(rootCerts)
 }

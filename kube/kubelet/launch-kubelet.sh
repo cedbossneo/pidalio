@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-curl -s -XPOST ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
 if [[ "${MASTER}" -eq "true" ]]
 then
     /opt/bin/kubelet \
       --docker-endpoint=unix:///var/run/weave/weave.sock \
       --api-servers=http://127.0.0.1:8080 \
-      --register-schedulable=${MASTER} \
-      --register-node=false \
+      --register-schedulable=true \
+      --register-node=true \
       --cloud-provider=openstack \
       --cloud-config=/etc/kubernetes/cloud.conf \
       --allow-privileged=true \
@@ -16,6 +15,7 @@ then
       --cluster-domain=${DOMAIN}
       @*
 else
+    curl -s -XPOST ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
     /opt/bin/kubelet \
       --docker-endpoint=unix:///var/run/weave/weave.sock \
       --api-servers=https://pidalio-master \

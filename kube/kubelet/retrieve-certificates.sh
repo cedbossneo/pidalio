@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+echo "Waiting for Pidalio..."
+until curl -s ${PIDALIO_URL}/certs/ca
+do
+  echo "Trying: ${PIDALIO_URL}"
+  sleep 1
+done
 curl -s ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&fqdn=${NODE_FQDN}\&ip=${NODE_IP} > node.json
 cat node.json | jq -r .privateKey > /etc/kubernetes/ssl/node-key.pem
 cat node.json | jq -r .cert > /etc/kubernetes/ssl/node.pem

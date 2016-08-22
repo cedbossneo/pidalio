@@ -15,6 +15,7 @@
 # OS_SUBNET
 
 mkdir -p /etc/kubernetes/descriptors /etc/kubernetes/manifests
+cd /run
 ./make-cloud-config.sh
 ./retrieve-certificates.sh
 ./launch-kubelet.sh
