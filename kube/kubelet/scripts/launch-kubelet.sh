@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 if [[ "${MASTER}" == "true" ]]
 then
-  cp /opt/manifests/master/* /etc/kubernetes/manifests
   /opt/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=http://127.0.0.1:8080 \
@@ -24,7 +23,6 @@ else
     sleep 1
   done
   curl -s -XPOST ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
-  cp /opt/manifests/node/* /etc/kubernetes/manifests
 #      --cloud-provider=openstack \
 #      --cloud-config=/etc/kubernetes/cloud.conf \
   /opt/kubelet \
