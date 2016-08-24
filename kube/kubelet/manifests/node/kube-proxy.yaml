@@ -11,27 +11,27 @@ spec:
     command:
     - /hyperkube
     - proxy
-    - --master=https://pidalio-master
+    - --master=https://10.0.2.1
     - --kubeconfig=/etc/kubernetes/kubeconfig.yaml
     - --proxy-mode=iptables
     securityContext:
       privileged: true
     volumeMounts:
       - mountPath: /etc/ssl/certs
-        name: "ssl-certs"
+        name: ssl-certs
       - mountPath: /etc/kubernetes/kubeconfig.yaml
-        name: "kubeconfig"
+        name: kubeconfig
         readOnly: true
       - mountPath: /etc/kubernetes/ssl
-        name: "etc-kube-ssl"
+        name: etc-kube-ssl
         readOnly: true
   volumes:
-    - name: "ssl-certs"
+    - name: ssl-certs
       hostPath:
-        path: "/usr/share/ca-certificates"
-    - name: "kubeconfig"
+        path: /usr/share/ca-certificates
+    - name: kubeconfig
       hostPath:
-        path: "/etc/kubernetes/kubeconfig.yaml"
-    - name: "etc-kube-ssl"
+        path: /etc/kubernetes/kubeconfig.yaml
+    - name: etc-kube-ssl
       hostPath:
-        path: "/etc/kubernetes/ssl"
+        path: /etc/kubernetes/ssl

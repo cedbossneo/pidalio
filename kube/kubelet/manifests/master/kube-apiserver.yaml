@@ -18,19 +18,15 @@ spec:
     - --service-cluster-ip-range=10.0.2.0/24
     - --service-node-port-range=1-33000
     - --secure-port=443
-    - --cloud-provider=openstack
-    - --cloud-config=/etc/kubernetes/cloud.conf
     - --advertise-address=$private_ipv4$
     - --admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
-    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
-    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --tls-cert-file=/etc/kubernetes/ssl/server.pem
+    - --tls-private-key-file=/etc/kubernetes/ssl/server-key.pem
     - --client-ca-file=/etc/kubernetes/ssl/ca.pem
-    - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --service-account-key-file=/etc/kubernetes/ssl/server-key.pem
     ports:
     - containerPort: 443
       name: https
-    - containerPort: 8080
-      name: local
     volumeMounts:
     - mountPath: /etc/kubernetes/ssl
       name: ssl-certs-kubernetes
