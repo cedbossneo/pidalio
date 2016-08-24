@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 if [[ "${MASTER}" == "true" ]]
 then
-  /opt/kubelet \
+  /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=http://127.0.0.1:8080 \
     --register-schedulable=true \
@@ -25,7 +25,7 @@ else
   curl -s -XPOST ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
 #      --cloud-provider=openstack \
 #      --cloud-config=/etc/kubernetes/cloud.conf \
-  /opt/kubelet \
+  /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=https://10.0.2.1 \
     --register-node=false \
