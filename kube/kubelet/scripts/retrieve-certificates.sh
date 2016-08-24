@@ -3,7 +3,7 @@ echo "Waiting for Pidalio..."
 until [[ "$(/opt/bin/weave dns-lookup pidalio|/usr/bin/wc -l)" == "1" ]]
 do
     echo "Waiting for Pidalio"
-    sleep 1
+    sleep 10
 done
 PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
 until curl -s ${PIDALIO_URL}/certs/ca\?token\=${PIDALIO_TOKEN}
