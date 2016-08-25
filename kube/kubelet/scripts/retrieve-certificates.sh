@@ -19,18 +19,18 @@ apiVersion: v1
 kind: Config
 clusters:
 - name: local
-cluster:
-certificate-authority: /etc/kubernetes/ssl/ca.pem
+  cluster:
+    certificate-authority: /etc/kubernetes/ssl/ca.pem
 users:
 - name: kubelet
-user:
-client-certificate: /etc/kubernetes/ssl/node.pem
-client-key: /etc/kubernetes/ssl/node-key.pem
+  user:
+    client-certificate: /etc/kubernetes/ssl/node.pem
+    client-key: /etc/kubernetes/ssl/node-key.pem
 contexts:
 - context:
-cluster: local
-user: kubelet
-name: kubelet-context
+    cluster: local
+    user: kubelet
+  name: kubelet-context
 current-context: kubelet-context
 EOF
 if [[ "${MASTER}" == "true" ]]

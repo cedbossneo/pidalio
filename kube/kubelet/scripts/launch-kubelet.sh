@@ -16,20 +16,12 @@ then
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 else
-  echo "Waiting for Kubernetes..."
-  PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
-  until [[ "curl --write-out '%{http_code}' --silent --output /dev/null $PIDALIO_URL/k8s/masters" == "200" ]]
-  do
-    echo "Trying: $PIDALIO_URL/k8s/masters"
-    sleep 10
-  done
-  MASTERS=$(curl -s $PIDALIO_URL/k8s/masters | jq -r .urls | tr '\n' ',')
   curl -s -XPOST ${PIDALIO_URL}/register/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
 #      --cloud-provider=openstack \
 #      --cloud-config=/etc/kubernetes/cloud.conf \
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
-    --api-servers=https://$MASTERS \
+    --api-servers=$MASTERS_URLS \
     --register-node=false \
     --node-labels=mode=SchedulingDisabled \
     --allow-privileged=true \
