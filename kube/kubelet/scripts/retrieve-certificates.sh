@@ -11,6 +11,9 @@ do
     echo "Trying: ${PIDALIO_URL}"
     sleep 1
 done
+# Root CA
+curl -s ${PIDALIO_URL}/certs/ca\?token\=${PIDALIO_TOKEN} > ca.json
+cat ca.json | jq -r .cert > /etc/kubernetes/ssl/ca.pem
 curl -s ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&fqdn=${NODE_FQDN}\&ip=${NODE_IP} > node.json
 cat node.json | jq -r .privateKey > /etc/kubernetes/ssl/node-key.pem
 cat node.json | jq -r .cert > /etc/kubernetes/ssl/node.pem
@@ -39,8 +42,4 @@ then
   curl -s ${PIDALIO_URL}/certs/server\?token\=${PIDALIO_TOKEN}\&ip=${NODE_IP} > server.json
   cat server.json | jq -r .privateKey > /etc/kubernetes/ssl/server-key.pem
   cat server.json | jq -r .cert > /etc/kubernetes/ssl/server.pem
-
-  # Root CA
-  curl -s ${PIDALIO_URL}/certs/ca\?token\=${PIDALIO_TOKEN} > ca.json
-  cat ca.json | jq -r .cert > /etc/kubernetes/ssl/ca.pem
 fi
