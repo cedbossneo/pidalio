@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+rm -f /etc/kubernetes/manifests/* /etc/kubernetes/descriptors/*
 cp /opt/kube/descriptors/* /etc/kubernetes/descriptors
 if [[ "${MASTER}" == "true" ]]
 then
@@ -14,13 +15,13 @@ else
     sleep 10
   done
   export MASTERS_URLS=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
-  export MASTER_URL=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | head -n 1)
+  export MASTER_IP=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .masters[] | head -n 1)
   echo Masters: ${MASTERS_URLS}
-  echo Selected Master: ${MASTER_URL}
+  echo Selected Master: ${MASTER_IP}
 fi
 for file in $(ls /etc/kubernetes/descriptors/*.yaml /etc/kubernetes/manifests/*.yaml)
 do
-    sed -i s/\\\$master\\\$/${MASTER_URL}/g $file
+    sed -i s/\\\$master\\\$/${MASTER_IP}/g $file
     sed -i s/\\\$domain\\\$/${DOMAIN}/g $file
     sed -i s/\\\$private_ipv4\\\$/${NODE_IP}/g $file
 done

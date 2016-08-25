@@ -11,7 +11,7 @@ spec:
     command:
     - /hyperkube
     - proxy
-    - --master=$master$
+    - --master=https://$master$
     - --kubeconfig=/etc/kubernetes/kubeconfig.yaml
     - --proxy-mode=iptables
     securityContext:
