@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cp /opt/kube/descriptors/* /etc/kubernetes/descriptors
 if [[ "${MASTER}" == "true" ]]
 then
   cp /opt/kube/manifests/master/* /etc/kubernetes/manifests
@@ -7,15 +8,16 @@ else
 
   echo "Waiting for Kubernetes..."
   PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
-  until [[ "$(curl --write-out '%{http_code}' --silent --output /dev/null $PIDALIO_URL/k8s/masters\?token\=$PIDALIO_TOKEN)" == "200" ]]
+  until [[ "$(curl --write-out '%{http_code}' --silent --output /dev/null ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN})" == "200" ]]
   do
     echo "Trying: $PIDALIO_URL/k8s/masters"
     sleep 10
   done
   export MASTERS_URLS=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
   export MASTER_URL=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | head -n 1)
+  echo Masters: ${MASTERS_URLS}
+  echo Selected Master: ${MASTER_URL}
 fi
-cp /opt/kube/descriptors/* /etc/kubernetes/descriptors
 for file in $(ls /etc/kubernetes/descriptors/*.yaml /etc/kubernetes/manifests/*.yaml)
 do
     sed -i s/\\\$master\\\$/${MASTER_URL}/g $file
