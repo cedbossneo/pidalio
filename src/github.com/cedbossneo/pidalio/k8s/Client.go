@@ -51,7 +51,7 @@ func CreateK8SClient(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) (*http
 
 func RegisterNode(c *http.Client, nodeId string, nodeIp string, nodeOs string, nodeArch string) (*client.Node, error) {
 	node, err := c.GetNode(nodeIp)
-	if err != nil {
+	if err == nil {
 		log.Print("Node already exist");
 		return node, nil
 	}

@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"fmt"
 	"github.com/cedbossneo/pidalio/utils"
+	"os"
 )
 
 type RootCerts struct {
@@ -91,11 +92,10 @@ func CreateServerCertificate(rootCerts RootCerts, additionalAltNames []string) (
 	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes")
 	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes.default")
 	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes.default.svc")
-	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes.default.svc.cluster.local")
-	certificate.AddExtension(openssl.NID_subject_alt_name, "IP:10.0.2.1")
-	certificate.AddExtension(openssl.NID_subject_alt_name, "IP:10.0.1.3")
+	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes.default.svc." + os.Getenv("DOMAIN"))
+	certificate.AddExtension(openssl.NID_subject_alt_name, "IP:10.16.0.1")
 	for i := 0; i < len(additionalAltNames); i++ {
-		certificate.AddExtension(openssl.NID_subject_alt_name, additionalAltNames[i])
+		certificate.AddExtension(openssl.NID_subject_alt_name, "IP:" + additionalAltNames[i])
 	}
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)

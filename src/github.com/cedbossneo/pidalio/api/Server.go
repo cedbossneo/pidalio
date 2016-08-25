@@ -91,7 +91,7 @@ func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 			},
 		})
 	})
-	r.POST("/register/node", func(c *gin.Context) {
+	r.GET("/register/node", func(c *gin.Context) {
 		nodeIp, exist := c.GetQuery("ip")
 		if !exist {
 			c.AbortWithError(http.StatusBadRequest, errors.New("ip not defined"))
