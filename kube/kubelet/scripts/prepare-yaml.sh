@@ -14,9 +14,7 @@ else
     echo "Trying: $PIDALIO_URL/k8s/masters"
     sleep 10
   done
-  export MASTERS_URLS=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
-  export MASTER_IP=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .masters[] | head -n 1)
-  echo Masters: ${MASTERS_URLS}
+  MASTER_IP=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .masters[] | head -n 1)
   echo Selected Master: ${MASTER_IP}
 fi
 for file in $(ls /etc/kubernetes/descriptors/*.yaml /etc/kubernetes/manifests/*.yaml)
