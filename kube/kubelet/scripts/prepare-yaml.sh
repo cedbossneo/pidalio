@@ -14,12 +14,12 @@ else
     echo "Trying: $PIDALIO_URL/k8s/masters"
     sleep 10
   done
-  MASTER_IP=$(curl -s $PIDALIO_URL/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .masters[] | head -n 1)
+  MASTER_IP=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .masters[] | head -n 1)
   echo Selected Master: ${MASTER_IP}
 fi
 for file in $(ls /etc/kubernetes/descriptors/*.yaml /etc/kubernetes/manifests/*.yaml)
 do
-    sed -i s/\\\$master\\\$/${MASTER_IP}/g $file
-    sed -i s/\\\$domain\\\$/${DOMAIN}/g $file
-    sed -i s/\\\$private_ipv4\\\$/${NODE_IP}/g $file
+    sed -i s/\\\$master\\\$/${MASTER_IP}/g ${file}
+    sed -i s/\\\$domain\\\$/${DOMAIN}/g ${file}
+    sed -i s/\\\$private_ipv4\\\$/${NODE_IP}/g ${file}
 done
