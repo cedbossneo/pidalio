@@ -19,7 +19,7 @@ else
   PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
   MASTERS_URLS=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
   echo Masters: ${MASTERS_URLS}
-  curl -s ${PIDALIO_URL}/register/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
+  curl -s -XPOST ${PIDALIO_URL}/register/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
 #      --cloud-provider=openstack \
 #      --cloud-config=/etc/kubernetes/cloud.conf \
   /opt/bin/kubelet \
