@@ -160,7 +160,11 @@ func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte,
 
 func LoadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
 	if etcd.KeyExist("/certs/root/key") {
-		decryptedKey, err := utils.Decrypt(token, []byte(etcd.GetKey("/certs/root/key")))
+		rootKey, err := etcd.GetKey("/certs/root/key")
+		if err != nil {
+			log.Fatal("Error while loading Root Private Key", err)
+		}
+		decryptedKey, err := utils.Decrypt(token, []byte(rootKey))
 		if err != nil {
 			log.Fatal("Error while decrypting Root Private Key", err)
 		}
@@ -168,7 +172,11 @@ func LoadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
 		if err != nil {
 			log.Fatal("Error while loading Root Private Key", err)
 		}
-		decryptedCert, err := utils.Decrypt(token, []byte(etcd.GetKey("/certs/root/cert")))
+		rootCert, err := etcd.GetKey("/certs/root/cert")
+		if err != nil {
+			log.Fatal("Error while loading Root Certificate", err)
+		}
+		decryptedCert, err := utils.Decrypt(token, []byte(rootCert))
 		if err != nil {
 			log.Fatal("Error while decrypting Root Certificate", err)
 		}

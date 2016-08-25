@@ -10,5 +10,5 @@ import (
 func main() {
 	etcdClient := etcd.CreateEtcdClient([]string{os.Getenv("ETCD_URI")})
 	rootCerts := ssl.LoadRootCerts(etcdClient, os.Getenv("TOKEN")[0:16])
-	api.CreateAPIServer(rootCerts)
+	api.CreateAPIServer(rootCerts, etcdClient)
 }

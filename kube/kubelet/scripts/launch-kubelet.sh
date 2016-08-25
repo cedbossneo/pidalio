@@ -17,17 +17,19 @@ then
     @*
 else
   echo "Waiting for Kubernetes..."
-  until curl -k -s https://10.16.0.1
+  PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
+  until [[ "curl --write-out '%{http_code}' --silent --output /dev/null $PIDALIO_URL/k8s/masters" == "200" ]]
   do
-    echo "Trying: https://10.16.0.1"
+    echo "Trying: $PIDALIO_URL/k8s/masters"
     sleep 10
   done
-  curl -s -XPOST ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
+  MASTERS=$(curl -s $PIDALIO_URL/k8s/masters | jq -r .urls | tr '\n' ',')
+  curl -s -XPOST ${PIDALIO_URL}/register/node\?token\=${PIDALIO_TOKEN}\&id=${NODE_ID}\&ip=${NODE_IP}\&os=linux\&arch=amd64
 #      --cloud-provider=openstack \
 #      --cloud-config=/etc/kubernetes/cloud.conf \
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
-    --api-servers=https://10.16.0.1 \
+    --api-servers=https://$MASTERS \
     --register-node=false \
     --node-labels=mode=SchedulingDisabled \
     --allow-privileged=true \

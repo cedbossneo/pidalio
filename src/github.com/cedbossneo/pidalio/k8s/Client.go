@@ -7,11 +7,34 @@ import (
 	"github.com/YakLabs/k8s-client/http"
 	"log"
 	"github.com/cedbossneo/pidalio/ssl"
+	"github.com/cedbossneo/pidalio/etcd"
+	"encoding/json"
 )
 
-func RegisterNode(rootCerts ssl.RootCerts, nodeId string, nodeIp string, nodeOs string, nodeArch string) (*client.Node, error) {
+func FetchMasterIP(etcdClient etcd.EtcdClient, unit string) (string, error){
+	var masterStateJSON map[string]interface{}
+	var machineStateJSON map[string]interface{}
+	masterState, err  := etcdClient.GetKey("/_coreos.com/fleet/state/" + unit)
+	if err != nil {
+		return "", err
+	}
+	json.Unmarshal([]byte(masterState), &masterStateJSON);
+	masterMachineID := masterStateJSON["machineState"].(map[string]interface{})["ID"].(string)
+	machineState, err := etcdClient.GetKey("/_coreos.com/fleet/machines/"+ masterMachineID +"/object")
+	json.Unmarshal([]byte(machineState), &machineStateJSON);
+	return machineStateJSON["PublicIP"].(string), nil
+}
+
+func CreateK8SClient(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) (*http.Client, error) {
+	MasterIP, err := FetchMasterIP(etcdClient, "pidalio-master@1.service")
+	if err != nil {
+		MasterIP, err = FetchMasterIP(etcdClient, "pidalio-master@2.service")
+		if err != nil {
+			return nil, err
+		}
+	}
 	opts := []http.OptionsFunc{
-		http.SetServer(os.Getenv("K8S_URI")),
+		http.SetServer("http://"+MasterIP+":8080"),
 	}
 	ca, _ := rootCerts.Certificate.MarshalPEM()
 	cert, pemPrivateKey, _, _ := ssl.CreateAdminCertificate(rootCerts);
@@ -23,6 +46,10 @@ func RegisterNode(rootCerts ssl.RootCerts, nodeId string, nodeIp string, nodeOs 
 		log.Print("Unable to create Kubernetes Client", err)
 		return nil, err
 	}
+	return c, nil
+}
+
+func RegisterNode(c *http.Client, nodeId string, nodeIp string, nodeOs string, nodeArch string) (*client.Node, error) {
 	node, err := c.GetNode(nodeIp)
 	if err != nil {
 		log.Print("Node already exist");

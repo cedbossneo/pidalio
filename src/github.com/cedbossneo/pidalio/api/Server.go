@@ -7,9 +7,18 @@ import (
 	"net/http"
 	"github.com/cedbossneo/pidalio/k8s"
 	"errors"
+	"github.com/cedbossneo/pidalio/etcd"
 )
 
-func CreateAPIServer(rootCerts ssl.RootCerts) {
+func checkErrors(c *gin.Context, err error) bool {
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return true
+	}
+	return false
+}
+
+func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 	r := gin.Default()
 	r.Use(func(c *gin.Context) {
 		if c.Query("token") != rootCerts.Token {
@@ -20,20 +29,14 @@ func CreateAPIServer(rootCerts ssl.RootCerts) {
 	})
 	r.GET("/certs/ca", func(c *gin.Context) {
 		cert, err := rootCerts.Certificate.MarshalPEM();
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
+		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
 			"cert": string(cert),
 		})
 	})
 	r.GET("/certs/admin", func(c *gin.Context) {
 		cert, private, public, err := ssl.CreateAdminCertificate(rootCerts)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
+		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
 			"cert": string(cert),
 			"privateKey": string(private),
@@ -47,10 +50,7 @@ func CreateAPIServer(rootCerts ssl.RootCerts) {
 			return
 		}
 		cert, private, public, err := ssl.CreateServerCertificate(rootCerts, strings.Split(ip, ","))
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
+		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
 			"cert": string(cert),
 			"privateKey": string(private),
@@ -69,14 +69,26 @@ func CreateAPIServer(rootCerts ssl.RootCerts) {
 			return
 		}
 		cert, private, public, err := ssl.CreateNodeCertificate(rootCerts, fqdn, ip)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
+		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
 			"cert": string(cert),
 			"privateKey": string(private),
 			"publicKey": string(public),
+		})
+	})
+
+	r.GET("/k8s/masters", func(c *gin.Context) {
+		MasterIP1, err := k8s.FetchMasterIP(etcdClient, "pidalio-master@1.service")
+		if checkErrors(c, err) { return }
+		MasterIP2, err := k8s.FetchMasterIP(etcdClient, "pidalio-master@2.service")
+		if checkErrors(c, err) { return }
+		c.JSON(200, gin.H{
+			"masters": []string{
+				MasterIP1, MasterIP2,
+			},
+			"urls": []string{
+				"https://" + MasterIP1, "https://" + MasterIP2,
+			},
 		})
 	})
 	r.POST("/register/node", func(c *gin.Context) {
@@ -100,11 +112,10 @@ func CreateAPIServer(rootCerts ssl.RootCerts) {
 			c.AbortWithError(http.StatusBadRequest, errors.New("os not defined"))
 			return
 		}
-		newNode, err := k8s.RegisterNode(rootCerts, nodeId, nodeIp, nodeOs, nodeArch)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
+		client, err := k8s.CreateK8SClient(rootCerts, etcdClient)
+		if checkErrors(c, err) { return }
+		newNode, err := k8s.RegisterNode(client, nodeId, nodeIp, nodeOs, nodeArch)
+		if checkErrors(c, err) { return }
 		c.JSON(200, newNode)
 	})
 	r.Run(":3000")
