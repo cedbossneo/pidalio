@@ -187,6 +187,7 @@ func LoadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
 		return RootCerts{
 			Certificate: cert,
 			privateKey: key,
+			Token: token,
 		}
 	} else {
 		key := CreateRootKeys(etcd, token)
