@@ -3,7 +3,7 @@ if [[ "${MASTER}" == "true" ]]
 then
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
-    --api-servers=http://127.0.0.1:8080 \
+    --register-node=false \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
     --hostname-override=${NODE_IP} \
