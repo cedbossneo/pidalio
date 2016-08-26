@@ -18,6 +18,8 @@ spec:
     - --service-cluster-ip-range=10.16.0.0/12
     - --service-node-port-range=1-33000
     - --secure-port=443
+    - --cloud-provider=openstack
+    - --cloud-config=/etc/kubernetes/cloud.conf
     - --admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
     - --tls-cert-file=/etc/kubernetes/ssl/server.pem
     - --tls-private-key-file=/etc/kubernetes/ssl/server-key.pem

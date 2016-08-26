@@ -4,7 +4,7 @@ then
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=http://127.0.0.1:8080 \
-    --register-schedulable=true \
+    --register-schedulable=false \
     --register-node=true \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
@@ -13,6 +13,8 @@ then
     --cluster-domain=${DOMAIN} \
     --tls-cert-file=/etc/kubernetes/ssl/node.pem \
     --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
+    --cloud-provider=openstack \
+    --cloud-config=/etc/kubernetes/cloud.conf \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 else
@@ -24,8 +26,6 @@ else
     echo "Trying to register node"
     sleep 10
   done
-#      --cloud-provider=openstack \
-#      --cloud-config=/etc/kubernetes/cloud.conf \
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=${MASTERS_URLS} \
@@ -38,6 +38,8 @@ else
     --cluster-domain=${DOMAIN} \
     --tls-cert-file=/etc/kubernetes/ssl/node.pem \
     --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
+    --cloud-provider=openstack \
+    --cloud-config=/etc/kubernetes/cloud.conf \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 fi
