@@ -11,8 +11,6 @@ then
     --cluster-domain=${DOMAIN} \
     --tls-cert-file=/etc/kubernetes/ssl/node.pem \
     --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
-    --cloud-provider=openstack \
-    --cloud-config=/etc/kubernetes/cloud.conf \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 else
