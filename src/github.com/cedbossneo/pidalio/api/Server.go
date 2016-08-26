@@ -21,7 +21,7 @@ func checkErrors(c *gin.Context, err error) bool {
 func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 	r := gin.Default()
 	r.Use(func(c *gin.Context) {
-		if c.Query("token") != rootCerts.Token {
+		if c.Query("token")[0:16] != rootCerts.Token {
 			c.AbortWithStatus(http.StatusForbidden)
 		} else {
 			c.Next()

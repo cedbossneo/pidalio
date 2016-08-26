@@ -4,8 +4,7 @@ then
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=http://127.0.0.1:8080 \
-    --register-schedulable=false \
-    --register-node=true \
+    --register-node=false \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
     --hostname-override=${NODE_IP} \
@@ -18,14 +17,6 @@ then
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 else
-  PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
-  MASTERS_URLS=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
-  echo Masters: ${MASTERS_URLS}
-  until [[ "$(curl --write-out '%{http_code}' --silent --output /dev/null -XPOST $PIDALIO_URL/register/node\?token\=$PIDALIO_TOKEN\&id=$NODE_ID\&ip=$NODE_IP\&os=linux\&arch=amd64)" == "200" ]]
-  do
-    echo "Trying to register node"
-    sleep 10
-  done
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=${MASTERS_URLS} \
@@ -43,3 +34,11 @@ else
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 fi
+PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
+MASTERS_URLS=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
+echo Masters: ${MASTERS_URLS}
+until [[ "$(curl --write-out '%{http_code}' --silent --output /dev/null -XPOST $PIDALIO_URL/register/node\?token\=$PIDALIO_TOKEN\&id=$NODE_ID\&ip=$NODE_IP\&os=linux\&arch=amd64)" == "200" ]]
+do
+    echo "Trying to register node"
+    sleep 10
+done
