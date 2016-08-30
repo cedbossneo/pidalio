@@ -107,10 +107,8 @@ resources:
     type: OS::Neutron::SecurityGroup
     properties:
       rules:
-        - { direction: ingress, remote_ip_prefix : 10.0.0.0/16, protocol: TCP, port_range_min: 1, port_range_max: 65535 }
-        - { direction: ingress, remote_ip_prefix : 10.0.0.0/16, protocol: UDP, port_range_min: 1, port_range_max: 65535 }
-        - { direction: ingress, remote_ip_prefix : 0.0.0.0/0, protocol: TCP, port_range_min: 22, port_range_max: 22 }
-        - { direction: ingress, remote_ip_prefix : 0.0.0.0/0, protocol: TCP, port_range_min: 80, port_range_max: 80 }
+        - { direction: ingress, remote_ip_prefix : 0.0.0.0/0, protocol: TCP, port_range_min: 1, port_range_max: 65535 }
+        - { direction: ingress, remote_ip_prefix : 0.0.0.0/0, protocol: UDP, port_range_min: 1, port_range_max: 65535 }
         - { direction: ingress, protocol: ICMP }
         - { direction: egress }
 
