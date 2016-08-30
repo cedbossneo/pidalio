@@ -22,15 +22,11 @@ else
     done
     ETCD_PEERS=$(echo ${ETCD_PEERS}|sed -rn 's/^(.*),$/\1/p')
     echo "EtcD peers: $ETCD_PEERS"
-    until etcdctl --no-sync --endpoints ${ETCD_PEERS} ls >/dev/null 2>&1; do
+    until etcdctl --no-sync --endpoints ${ETCD_PEERS} member list >/dev/null 2>&1; do
         echo "Waiting for EtcD at $ETCD_PEERS..."
         sleep 10
     done
-    until cat /etc/etcd.env | grep ETCD_NAME
-    do
-        echo "Try to register node"
-        etcdctl --endpoints ${ETCD_PEERS} member add ${NODE_FQDN} http://${NODE_PUBLIC_IP}:2380 | tail -n +3 > /etc/etcd.env
-    done
+    etcdctl --endpoints ${ETCD_PEERS} member add ${NODE_FQDN} http://${NODE_PUBLIC_IP}:2380 | tail -n +3 > /etc/etcd.env
     cat <<EOF >> /etc/etcd.env
 ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_IP}:2379,http://${NODE_PUBLIC_IP}:2379
 ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_IP}:2380,http://${NODE_PUBLIC_IP}:2380
