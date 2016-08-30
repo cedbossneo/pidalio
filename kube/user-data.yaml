@@ -16,8 +16,8 @@ write_files:
       mkdir -p /etc/kubernetes/descriptors /etc/kubernetes/manifests /etc/kubernetes/ssl
       git clone https://github.com/cedbossneo/pidalio.git /opt/pidalio
       ln -s /opt/pidalio/kube/kubelet /opt/kube
-      curl -o /opt/bin/kubelet http://storage.googleapis.com/kubernetes-release/release/v1.3.5/bin/linux/amd64/kubelet
-      curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.5/bin/linux/amd64/kubectl
+      curl -o /opt/bin/kubelet http://storage.googleapis.com/kubernetes-release/release/v1.3.6/bin/linux/amd64/kubelet
+      curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.6/bin/linux/amd64/kubectl
       chmod +x /opt/bin/kubelet /opt/bin/kubectl
   - path: /etc/pidalio.env
     permissions: 0700

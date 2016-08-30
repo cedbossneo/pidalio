@@ -83,6 +83,7 @@ resources:
             $master_count$: { get_param: mastercount }
             $subnet$: { get_param: subnet }
             $token$: { get_param: token }
+            $peers$: "10.0.1.10"
           template: |
             #cloud-config
             write_files:
@@ -91,22 +92,37 @@ resources:
                 owner: "root:root"
                 content: |
                   #!/bin/bash
-                  echo WEAVE_PEERS=\"10.0.1.10 10.0.1.11 10.0.1.12\" > /etc/weave.env
+                  echo WEAVE_PEERS=\"$peers$\" > /etc/weave.env
                   echo WEAVEPROXY_ARGS=\"--rewrite-inspect\" >> /etc/weave.env
               - path: /opt/pidalio-init.sh
                 permissions: 0700
                 owner: "root:root"
                 content: |
                   #!/bin/bash
-                  echo NODE_FQDN=$(hostname) >> /etc/pidalio.env
-                  echo NODE_ID=$(curl -s http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid) >> /etc/pidalio.env
-                  rm -Rf /opt/pidalio /opt/kube /opt/bin/kubelet /opt/bin/kubectl
-                  mkdir -p /etc/kubernetes/descriptors /etc/kubernetes/manifests /etc/kubernetes/ssl
+                  NODE_NAME=$(hostname |cut -d '.' -f 1)
+                  NODE_FQDN=$(hostname)
+                  NODE_ID=$(curl -s http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid)
+                  cat <<EOF > /etc/pidalio.env
+                  NODE_NAME=$NODE_NAME
+                  NODE_FQDN=$NODE_FQDN
+                  NODE_ID=$NODE_ID
+                  NODE_IP=$private_ipv4$
+                  NODE_PUBLIC_IP=$public_ipv4$
+                  PEERS=$peers$
+                  PIDALIO_TOKEN=$token$
+                  DOMAIN=$domain$
+                  OS_AUTH_URL=$os_auth$
+                  OS_PASSWORD=$os_password$
+                  OS_USERNAME=$os_username$
+                  OS_TENANT_NAME=$os_tenant$
+                  OS_PROJECT_ID=$os_project_id$
+                  OS_REGION=$os_region$
+                  OS_SUBNET=$subnet$
+                  EOF
+
+                  rm -Rf /opt/pidalio
                   git clone https://github.com/cedbossneo/pidalio.git /opt/pidalio
-                  ln -s /opt/pidalio/kube/kubelet /opt/kube
-                  curl -o /opt/bin/kubelet http://storage.googleapis.com/kubernetes-release/release/v1.3.5/bin/linux/amd64/kubelet
-                  curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.5/bin/linux/amd64/kubectl
-                  chmod +x /opt/bin/kubelet /opt/bin/kubectl
+                  /opt/pidalio/init.sh
               - path: /opt/pidalio-units.sh
                 permissions: 0700
                 owner: "root:root"
@@ -117,24 +133,10 @@ resources:
                   do
                     /usr/bin/fleetctl start /opt/pidalio-master@$i.service
                   done
-                  for i in $(seq 1 $node_count$)
+                  for i in $(seq 1 $(expr $node_count$ - $master_count$))
                   do
                     /usr/bin/fleetctl start /opt/pidalio-node@$i.service
                   done
-              - path: /etc/pidalio.env
-                permissions: 0700
-                owner: "root:root"
-                content: |
-                  PIDALIO_TOKEN=$token$
-                  NODE_IP=$private_ipv4$
-                  DOMAIN=$domain$
-                  OS_AUTH_URL=$os_auth$
-                  OS_PASSWORD=$os_password$
-                  OS_USERNAME=$os_username$
-                  OS_TENANT_NAME=$os_tenant$
-                  OS_PROJECT_ID=$os_project_id$
-                  OS_REGION=$os_region$
-                  OS_SUBNET=$subnet$
               - path: /opt/pidalio.service
                 permissions: 0700
                 owner: "root:root"
@@ -148,13 +150,11 @@ resources:
                   [Service]
                   Restart=always
                   RestartSec=10
-                  EnvironmentFile=/etc/environment
                   Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
                   ExecStartPre=/usr/bin/docker pull cedbossneo/pidalio
                   ExecStart=/usr/bin/docker run --name=pidalio \
                     -e TOKEN=$token$ \
                     -e ETCD_URI=http://$private_ipv4$:2379 \
-                    -e OS_REGION_NAME=$os_region$ \
                     cedbossneo/pidalio
                   ExecStop=/usr/bin/docker rm -f pidalio
               - path: /opt/pidalio-master@.service
@@ -168,14 +168,10 @@ resources:
                   [Service]
                   Restart=always
                   RestartSec=10
-                  EnvironmentFile=/etc/environment
                   EnvironmentFile=/etc/pidalio.env
                   Environment=MASTER=true
-                  ExecStartPre=/opt/kube/scripts/make-cloud-config.sh
-                  ExecStartPre=/opt/kube/scripts/retrieve-certificates.sh
-                  ExecStartPre=/opt/kube/scripts/prepare-yaml.sh
-                  ExecStart=/opt/kube/scripts/launch-kubelet.sh
-                  ExecStop=/bin/bash -c '/usr/bin/docker rm -f $(/usr/bin/docker ps -q -a -f name=kube-)'
+                  ExecStart=/opt/pidalio/start.sh
+                  ExecStop=/opt/pidalio/stop.sh
                   [X-Fleet]
                   Conflicts=pidalio-master@*.service
                   Conflicts=pidalio-node@*.service
@@ -192,14 +188,10 @@ resources:
                   [Service]
                   Restart=always
                   RestartSec=10
-                  EnvironmentFile=/etc/environment
                   EnvironmentFile=/etc/pidalio.env
                   Environment=MASTER=false
-                  ExecStartPre=/opt/kube/scripts/make-cloud-config.sh
-                  ExecStartPre=/opt/kube/scripts/retrieve-certificates.sh
-                  ExecStartPre=/opt/kube/scripts/prepare-yaml.sh
-                  ExecStart=/opt/kube/scripts/launch-kubelet.sh
-                  ExecStop=/bin/bash -c '/usr/bin/docker rm -f $(/usr/bin/docker ps -q -a -f name=kube-)'
+                  ExecStart=/opt/pidalio/start.sh
+                  ExecStop=/opt/pidalio/stop.sh
                   [X-Fleet]
                   Conflicts=pidalio-master@*.service
                   Conflicts=pidalio-node@*.service
@@ -207,16 +199,28 @@ resources:
               fleet:
                   public-ip: "$private_ipv4$"
                   metadata: "region=vagrant"
-              etcd2:
-                name: $private_ipv4$
-                advertise-client-urls: http://$private_ipv4$:2379
-                initial-advertise-peer-urls: http://$private_ipv4$:2380
-                initial-cluster: "10.0.1.10=http://10.0.1.10:2380,10.0.1.11=http://10.0.1.11:2380,10.0.1.12=http://10.0.1.12:2380"
-                listen-client-urls: http://0.0.0.0:2379
-                listen-peer-urls: http://$private_ipv4$:2380
               units:
+                - name: pidalio-init.service
+                  command: start
+                  content: |
+                    [Unit]
+                    Description=Pidalio Config Service
+                    Before=pidalio-launch.service
+                    [Service]
+                    Type=oneshot
+                    RemainAfterExit=yes
+                    TimeoutStartSec=5m
+                    ExecStart=/opt/pidalio-init.sh
                 - name: etcd2.service
                   command: start
+                  drop-ins:
+                    - name: 20-env.conf
+                      content: |
+                        [Unit]
+                        After=pidalio-init.service
+                        Requires=pidalio-init.service
+                        [Service]
+                        EnvironmentFile=/etc/etcd.env
                 - name: fleet.service
                   command: start
                 - name: weave-network.target
@@ -237,7 +241,7 @@ resources:
                     [Service]
                     Type=oneshot
                     RemainAfterExit=yes
-                    TimeoutStartSec=0
+                    TimeoutStartSec=5m
                     ExecStart=/opt/weave-init.sh
                 - name: 10-weave.network
                   runtime: false
@@ -258,7 +262,7 @@ resources:
                     EnvironmentFile=-/etc/weave.env
                     Type=oneshot
                     RemainAfterExit=yes
-                    TimeoutStartSec=0
+                    TimeoutStartSec=5m
                     ExecStartPre=/bin/mkdir -p /opt/bin/
                     ExecStartPre=/usr/bin/curl \
                       --silent \
@@ -298,7 +302,7 @@ resources:
                     Requires=docker.service
                     Requires=install-weave.service
                     [Service]
-                    TimeoutStartSec=0
+                    TimeoutStartSec=5m
                     EnvironmentFile=-/etc/weave.env
                     ExecStartPre=/opt/bin/weave launch-router $WEAVE_PEERS
                     ExecStart=/usr/bin/docker attach weave
@@ -320,33 +324,22 @@ resources:
                     [Service]
                     Type=oneshot
                     RemainAfterExit=yes
-                    TimeoutStartSec=0
+                    TimeoutStartSec=5m
                     EnvironmentFile=-/etc/weave.env
                     ExecStart=/opt/bin/weave expose
                     ExecStop=/opt/bin/weave hide
                     [Install]
                     WantedBy=weave-network.target
-                - name: pidalio-init.service
-                  command: start
-                  content: |
-                    [Unit]
-                    Description=Pidalio Config Service
-                    [Service]
-                    Type=oneshot
-                    RemainAfterExit=yes
-                    TimeoutStartSec=0
-                    ExecStart=/opt/pidalio-init.sh
                 - name: pidalio-launch.service
                   command: start
                   content: |
                     [Unit]
-                    After=weave-network.target fleet.service pidalio-init.service
-                    Requires=weave-network.target fleet.service pidalio-init.service
+                    After=fleet.service pidalio-init.service
+                    Requires=fleet.service pidalio-init.service
                     [Service]
                     Type=oneshot
                     RemainAfterExit=yes
-                    TimeoutStartSec=0
-                    EnvironmentFile=/etc/environment
+                    TimeoutStartSec=5m
                     ExecStart=/opt/pidalio-units.sh
   floating_ip_link:
     type: OS::Nova::FloatingIPAssociation
