@@ -13,18 +13,18 @@ ETCD_INITIAL_CLUSTER=${NODE_FQDN}=http://${NODE_IP}:2380,${NODE_FQDN}=http://${N
 ETCD_INITIAL_CLUSTER_STATE=new
 EOF
 else
-    PEERS=""
+    ETCD_PEERS=""
     for server in ${PEERS}
     do
-      PEERS=http://${server}:2379,${PEERS}
+      ETCD_PEERS=http://${server}:2379,${ETCD_PEERS}
     done
-    PEERS=$(echo ${PEERS}|sed -rn 's/^(.*),$/\1/p')
-    echo "EtcD peers: $PEERS"
-    until etcdctl --no-sync --endpoints ${PEERS} ls >/dev/null 2>&1; do
-        echo "Waiting for EtcD at $PEERS..."
+    ETCD_PEERS=$(echo ${ETCD_PEERS}|sed -rn 's/^(.*),$/\1/p')
+    echo "EtcD peers: $ETCD_PEERS"
+    until etcdctl --no-sync --endpoints ${ETCD_PEERS} ls >/dev/null 2>&1; do
+        echo "Waiting for EtcD at $ETCD_PEERS..."
         sleep 10
     done
-    etcdctl --endpoints ${PEERS} member add ${NODE_FQDN} http://${NODE_PUBLIC_IP}:2380 | tail -n +3 > /etc/etcd.env
+    etcdctl --endpoints ${ETCD_PEERS} member add ${NODE_FQDN} http://${NODE_PUBLIC_IP}:2380 | tail -n +3 > /etc/etcd.env
     cat <<EOF >> /etc/etcd.env
 ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_IP}:2379,http://${NODE_PUBLIC_IP}:2379
 ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_IP}:2380,http://${NODE_PUBLIC_IP}:2380
