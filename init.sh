@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source /etc/pidalio.env
 # Configure ETCD
 if [[ "$PEERS" == "$NODE_IP" ]]
 then
