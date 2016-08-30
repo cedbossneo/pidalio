@@ -3,7 +3,7 @@ source /etc/pidalio.env
 # Configure ETCD
 if [[ "$PEERS" == "$NODE_IP" ]]
 then
-cat <<EOF > /etc/etcd.env
+    cat <<EOF > /etc/etcd.env
 ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_IP}:2379,http://${NODE_PUBLIC_IP}:2379
 ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_IP}:2380,http://${NODE_PUBLIC_IP}:2380
 ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
@@ -13,17 +13,24 @@ ETCD_INITIAL_CLUSTER=${NODE_FQDN}=http://${NODE_IP}:2380,${NODE_FQDN}=http://${N
 ETCD_INITIAL_CLUSTER_STATE=new
 EOF
 else
-PEERS=""
-for server in ${PEERS}
-do
-  PEERS=http://${server}:2380,${PEERS}
-done
+    PEERS=""
+    for server in ${PEERS}
+    do
+      PEERS=http://${server}:2379,${PEERS}
+    done
     PEERS=$(echo ${PEERS}|sed -rn 's/^(.*),$/\1/p')
+    echo "EtcD peers: $PEERS"
     until etcdctl --no-sync --endpoints ${PEERS} ls >/dev/null 2>&1; do
         echo "Waiting for EtcD at $PEERS..."
         sleep 10
     done
     etcdctl --endpoints ${PEERS} member add ${NODE_FQDN} http://${NODE_PUBLIC_IP}:2380 | tail -n +3 > /etc/etcd.env
+    cat <<EOF >> /etc/etcd.env
+ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_IP}:2379,http://${NODE_PUBLIC_IP}:2379
+ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_IP}:2380,http://${NODE_PUBLIC_IP}:2380
+ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
+EOF
 fi
 
 # Create directories and download Kubernetes Components
