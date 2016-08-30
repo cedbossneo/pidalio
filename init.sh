@@ -2,6 +2,7 @@
 set -xe
 source /etc/pidalio.env
 # Configure ETCD
+if cat /etc/etcd.env | grep ETCD_NAME; then exit 0; fi
 if [[ "$PEERS" == "$NODE_IP" ]]
 then
     cat <<EOF > /etc/etcd.env
@@ -25,11 +26,11 @@ else
         echo "Waiting for EtcD at $ETCD_PEERS..."
         sleep 10
     done
-    if etcdctl --endpoints ${ETCD_PEERS} member remove ${NODE_FQDN}
-    then
-        echo "Member deleted"
-    fi
-    etcdctl --endpoints ${ETCD_PEERS} member add ${NODE_FQDN} http://${NODE_PUBLIC_IP}:2380 | tail -n +3 > /etc/etcd.env
+    until cat /etc/etcd.env | grep ETCD_NAME
+    do
+        echo "Try to register node"
+        etcdctl --endpoints ${ETCD_PEERS} member add ${NODE_FQDN} http://${NODE_PUBLIC_IP}:2380 | tail -n +3 > /etc/etcd.env
+    done
     cat <<EOF >> /etc/etcd.env
 ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_IP}:2379,http://${NODE_PUBLIC_IP}:2379
 ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_IP}:2380,http://${NODE_PUBLIC_IP}:2380
