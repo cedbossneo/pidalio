@@ -40,8 +40,15 @@ fi
 
 # Create directories and download Kubernetes Components
 mkdir -p /etc/kubernetes/descriptors /etc/kubernetes/manifests /etc/kubernetes/ssl /opt/bin
-rm -Rf /opt/bin/kubelet /opt/bin/kubectl
-curl -o /opt/bin/kubelet http://storage.googleapis.com/kubernetes-release/release/v1.3.6/bin/linux/amd64/kubelet
-curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.6/bin/linux/amd64/kubectl
-chmod +x /opt/bin/kubelet /opt/bin/kubectl
-
+if [[ -x /opt/bin/kubelet ]]; then
+    echo "Kubelet already installed"
+else
+    curl -o /opt/bin/kubelet http://storage.googleapis.com/kubernetes-release/release/v1.3.6/bin/linux/amd64/kubelet
+    chmod +x /opt/bin/kubelet
+fi
+if [[ -x /opt/bin/kubectl ]]; then
+    echo "Kubectl already installed"
+else
+    curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.6/bin/linux/amd64/kubectl
+    chmod +x /opt/bin/kubectl
+fi
