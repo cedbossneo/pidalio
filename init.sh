@@ -30,7 +30,7 @@ do
 done
 ETCD_PEERS=$(echo ${ETCD_PEERS}|sed -rn 's/^(.*),$/\1/p')
 echo "EtcD peers: $ETCD_PEERS"
-until etcd2-bootstrapper --me ${NODE_IP}=${NODE_IP} --members ${ETCD_PEERS} --out /etc/etcd.env
+until /opt/bin/etcd2-bootstrapper --me ${NODE_IP}=${NODE_IP} --members ${ETCD_PEERS} --out /etc/etcd.env
 do
     echo "Trying to register Etcd node"
     sleep 10
