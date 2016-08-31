@@ -17,7 +17,7 @@ fi
 if [[ -x /opt/bin/etcd2-bootstrapper ]]; then
     echo "Etcd2 Bootstrapper already installed"
 else
-    curl -o /opt/bin/etcd2-bootstrapper https://github.com/glerchundi/etcd2-bootstrapper/releases/download/v0.3.0/etcd2-bootstrapper-linux-amd64
+    wget -O /opt/bin/etcd2-bootstrapper https://github.com/glerchundi/etcd2-bootstrapper/releases/download/v0.3.0/etcd2-bootstrapper-linux-amd64
     chmod +x /opt/bin/etcd2-bootstrapper
 fi
 source /etc/pidalio.env
