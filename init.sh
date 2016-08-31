@@ -32,6 +32,7 @@ else
         etcdctl --endpoints ${ETCD_PEERS} member add ${NODE_FQDN} http://${NODE_PUBLIC_IP}:2380 | tail -n +3 > /tmp/etcd.env
         sleep 10
     done
+    mv /tmp/etcd.env /etc/etcd.env
     cat <<EOF >> /etc/etcd.env
 ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_IP}:2379,http://${NODE_PUBLIC_IP}:2379
 ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_IP}:2380,http://${NODE_PUBLIC_IP}:2380
