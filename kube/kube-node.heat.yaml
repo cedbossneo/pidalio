@@ -4,6 +4,9 @@ parameters:
   token:
     label: token
     type: string
+  peers:
+    label: peers
+    type: string
   mastercount:
     label: mastercount
     type: number
@@ -83,7 +86,7 @@ resources:
             $master_count$: { get_param: mastercount }
             $subnet$: { get_param: subnet }
             $token$: { get_param: token }
-            $peers$: "10.0.1.10"
+            $peers$: { get_param: peers }
           template: |
             #cloud-config
             write_files:

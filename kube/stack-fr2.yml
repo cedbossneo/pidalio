@@ -73,10 +73,17 @@ parameters:
     constraints:
       - range: { min: 1, max: 3 }
 
-resources:
   token:
-    type: OS::Heat::RandomString
+    default: averylongpassphraseatleast16chars
+    label: Token
+    type: string
 
+  peers:
+    default: 10.2.0.10
+    label: Peers
+    type: string
+
+resources:
   network:
     type: OS::Neutron::Net
 
@@ -85,9 +92,9 @@ resources:
     properties:
       network_id: { get_resource: network }
       ip_version: 4
-      cidr: 10.0.0.0/16
+      cidr: 10.2.0.0/16
       allocation_pools:
-        - { start: 10.0.1.10, end: 10.0.1.200 }
+        - { start: 10.2.1.10, end: 10.2.1.200 }
 
   router:
     type: OS::Neutron::Router
@@ -120,7 +127,8 @@ resources:
       resource:
         type: kube-node.heat.yaml
         properties:
-          token: { get_resource: token }
+          token: { get_param: token }
+          peers: { get_param: peers }
           domain: { get_param: domain }
           subnet: { get_resource: subnet }
           security_group: { get_resource: security_group }
