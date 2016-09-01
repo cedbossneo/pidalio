@@ -39,7 +39,7 @@ for MEMBER in ${MEMBERS}
 do
   ETCD_PEERS=${MEMBER},${ETCD_PEERS}
 done
-ETCD_PEERS=$(echo ${ETCD_PEERS}|sed -rn 's/^(.*),$/\1/p')
+ETCD_PEERS=$(echo ${ETCD_PEERS}|sed -rn 's/^(.*),$/\1/p' | sed 's/http:\/\///g' | sed 's/:2380//g')
 
 echo "EtcD peers: $ETCD_PEERS"
 until /opt/bin/etcd2-bootstrapper --me ${NODE_FQDN}=${NODE_PUBLIC_IP} --members ${ETCD_PEERS} --out /etc/etcd.env
