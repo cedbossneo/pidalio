@@ -80,7 +80,7 @@ resources:
             $os_password$: { get_param: os_password}
             $os_tenant$: { get_param: os_tenant }
             $os_auth$: { get_param: os_auth }
-            $os_region$: fr1
+            $os_region$: { get_param: os_region }
             $os_project_id$: { get_param: 'OS::project_id' }
             $node_count$: { get_param: nodecount }
             $master_count$: { get_param: mastercount }
@@ -135,14 +135,20 @@ resources:
                 owner: "root:root"
                 content: |
                   #!/bin/bash
+                  set -xe
                   /usr/bin/fleetctl start /opt/pidalio.service
                   for i in $(seq 1 $master_count$)
                   do
                     /usr/bin/fleetctl start /opt/pidalio-master@$os_region$-$i.service
                   done
-                  for i in $(seq 1 $(expr $node_count$ - $master_count$))
+                  while true
                   do
-                    /usr/bin/fleetctl start /opt/pidalio-node@$os_region$-$i.service
+                    nb_machines=$(fleetctl list-machines | grep region=$os_region$ | wc -l)
+                    for i in $(seq 1 $(expr $nb_machines - $master_count$))
+                    do
+                      /usr/bin/fleetctl start /opt/pidalio-node@$os_region$-$i.service
+                    done
+                    sleep 60
                   done
               - path: /opt/pidalio.service
                 permissions: 0700
@@ -170,7 +176,7 @@ resources:
                 content: |
                   [Unit]
                   Description=Pidalio Master Service
-                  After=weave-network.target etcd2.service pidalio-node.service
+                  After=weave-network.target etcd2.service
                   Requires=weave-network.target etcd2.service
                   [Service]
                   Restart=always
@@ -180,6 +186,7 @@ resources:
                   ExecStart=/opt/pidalio/start.sh
                   ExecStop=/opt/pidalio/stop.sh
                   [X-Fleet]
+                  MachineMetadata=region=$os_region$
                   Conflicts=pidalio-master@*.service
                   Conflicts=pidalio-node@*.service
               - path: /opt/pidalio-node@.service
@@ -188,10 +195,8 @@ resources:
                 content: |
                   [Unit]
                   Description=Pidalio Node Service
-                  After=pidalio-launch.service
-                  After=etcd2.service
-                  Requires=pidalio-launch.service
-                  Requires=etcd2.service
+                  After=weave-network.target etcd2.service
+                  Requires=weave-network.target etcd2.service
                   [Service]
                   Restart=always
                   RestartSec=10
@@ -200,6 +205,7 @@ resources:
                   ExecStart=/opt/pidalio/start.sh
                   ExecStop=/opt/pidalio/stop.sh
                   [X-Fleet]
+                  MachineMetadata=region=$os_region$
                   Conflicts=pidalio-master@*.service
                   Conflicts=pidalio-node@*.service
             coreos:
@@ -212,11 +218,11 @@ resources:
                   content: |
                     [Unit]
                     Description=etcd2
+                    After=weave-network.target
+                    Requires=weave-network.target
                     Conflicts=etcd.service
 
                     [Service]
-                    Environment=ETCD_DATA_DIR=/var/lib/etcd2
-                    Environment=ETCD_NAME=%m
                     ExecStart=/opt/pidalio-init.sh
                     Restart=always
                     RestartSec=10s
@@ -228,7 +234,7 @@ resources:
                 - name: fleet.service
                   command: start
                 - name: weave-network.target
-                  command: start
+                  enable: true
                   content: |
                     [Unit]
                     Description=Weave Network Setup Complete
@@ -341,8 +347,8 @@ resources:
                     After=fleet.service etcd2.service
                     Requires=fleet.service etcd2.service
                     [Service]
-                    Type=oneshot
-                    RemainAfterExit=yes
+                    Restart=always
+                    RestartSec=10
                     TimeoutStartSec=5m
                     ExecStart=/opt/pidalio-units.sh
   floating_ip_link:
