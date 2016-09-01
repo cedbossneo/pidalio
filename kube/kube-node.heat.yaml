@@ -136,7 +136,7 @@ resources:
                   do
                     /usr/bin/fleetctl start /opt/pidalio-master@$i.service
                   done
-                  machines_count=$(fleetctl list-machines|wc -l)
+                  machines_count=$(/usr/bin/fleetctl list-machines|wc -l)
                   for i in $(seq 1 $(expr $machines_count - 1 - $master_count$))
                   do
                     /usr/bin/fleetctl start /opt/pidalio-node@$i.service
