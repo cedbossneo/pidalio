@@ -18,7 +18,7 @@ source /etc/pidalio.env
 # Launch ETCD
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
 docker pull cedbossneo/etcd-cluster-on-docker
-EXISTING_IPS=$(weave dns-lookup etcd)
+EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd)
 ID="-1"
 for ip in $(seq 0 2)
 do
