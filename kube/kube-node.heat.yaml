@@ -134,7 +134,7 @@ resources:
                   /usr/bin/fleetctl start /opt/pidalio.service
                   for i in $(seq 1 $master_count$)
                   do
-                    /usr/bin/fleetctl start /opt/pidalio-master@$i.service
+                    /usr/bin/fleetctl start /opt/pidalio-master@$os_region$-$i.service
                   done
                   machines_count=$(/usr/bin/fleetctl list-machines|wc -l)
                   for i in $(seq 1 $(expr $machines_count - 1 - $master_count$))
@@ -201,8 +201,8 @@ resources:
                   Conflicts=pidalio-node@*.service
             coreos:
               fleet:
-                  public-ip: "$private_ipv4$"
-                  metadata: "region=vagrant"
+                  public-ip: "$public_ipv4$"
+                  metadata: "region=$os_region$"
               units:
                 - name: pidalio-init.service
                   command: start

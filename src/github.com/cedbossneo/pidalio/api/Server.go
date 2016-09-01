@@ -78,17 +78,11 @@ func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 	})
 
 	r.GET("/k8s/masters", func(c *gin.Context) {
-		MasterIP1, err := k8s.FetchMasterIP(etcdClient, "pidalio-master@1.service")
-		if checkErrors(c, err) { return }
-		MasterIP2, err := k8s.FetchMasterIP(etcdClient, "pidalio-master@2.service")
+		MasterIPs, MasterURLs, err := k8s.FetchMastersIPs(etcdClient)
 		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
-			"masters": []string{
-				MasterIP1, MasterIP2,
-			},
-			"urls": []string{
-				"https://" + MasterIP1, "https://" + MasterIP2,
-			},
+			"masters": MasterIPs,
+			"urls": MasterURLs,
 		})
 	})
 	r.POST("/register/node", func(c *gin.Context) {

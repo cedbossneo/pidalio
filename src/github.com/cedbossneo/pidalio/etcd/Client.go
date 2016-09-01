@@ -62,6 +62,17 @@ func (etcd EtcdClient) GetKey(key string) (string, error) {
 	return resp.Node.Value, nil
 }
 
+func (etcd EtcdClient) ListKeys(key string) (client.Nodes, error) {
+	log.Print("Listing ", key, " value")
+	resp, err := etcd.keys.Get(context.Background(), key, nil)
+	if err != nil || !resp.Node.Dir {
+		return nil, err
+	} else {
+		log.Printf("Get is done. Metadata is %q\n", resp)
+	}
+	return resp.Node.Nodes, nil
+}
+
 func (etcd EtcdClient) KeyExist(key string) bool {
 	log.Print("Test ", key, " exist")
 	_, err := etcd.keys.Get(context.Background(), key, nil)

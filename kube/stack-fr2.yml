@@ -66,7 +66,7 @@ parameters:
       - range: { min: 1, max: 10 }
 
   master_count:
-    default: 2
+    default: 1
     label: Master Count
     description: Master counts
     type: number
@@ -141,5 +141,26 @@ resources:
           os_password: { get_param: os_password }
           os_tenant: { get_param: os_tenant }
           os_auth: { get_param: os_auth }
-          os_region: fr1
+          os_region: fr2
           os_tenant_id: { get_param: 'OS::project_id' }
+  scaleup_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+       adjustment_type: change_in_capacity
+       auto_scaling_group_id: {get_resource: nodes}
+       scaling_adjustment: 1
+  scaledown_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: {get_resource: nodes}
+      scaling_adjustment: -1
+outputs:
+  scale_up_url:
+    description: >
+      This URL is the webhook to scale up the autoscaling group. You can invoke the scale-up operation by doing an HTTP POST to this URL; no body nor extra headers are needed.
+    value: {get_attr: [scaleup_policy, alarm_url]}
+  scale_dn_url:
+    description: >
+      his URL is the webhook to scale down the autoscaling group. You can invoke the scale-down operation by doing an HTTP POST to this URL; no body nor extra headers are needed.
+    value: {get_attr: [scaledown_policy, alarm_url]}
