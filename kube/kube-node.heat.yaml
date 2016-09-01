@@ -341,8 +341,8 @@ resources:
                   command: start
                   content: |
                     [Unit]
-                    After=fleet.service
-                    Requires=fleet.service
+                    After=fleet.service etcd2.service
+                    Requires=fleet.service etcd2.service
                     [Service]
                     Type=oneshot
                     RemainAfterExit=yes
