@@ -27,7 +27,7 @@ if [[ "$PEER" == "$NODE_IP" ]]
 then
     MEMBERS="$NODE_FQDN=$NODE_PUBLIC_IP"
 else
-    until MEMBERS=$(curl -s http://$PEER:2380/v2/members | jq -r '.members[] | "\(.name)=\(.peerURLs[0])"')
+    until MEMBERS=$(curl -s http://$PEER:2380/members | jq -r '.[] | "\(.name)=\(.peerURLs[0])"')
     do
         echo "Trying to find members"
         sleep 10
