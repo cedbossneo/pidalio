@@ -23,21 +23,32 @@ fi
 source /etc/pidalio.env
 # Configure ETCD
 if cat /etc/etcd.env | grep ETCD_NAME; then exit 0; fi
+if [[ "$PEER" == "$NODE_IP" ]]
+then
+    MEMBERS="$NODE_FQDN=$NODE_PUBLIC_IP"
+else
+    until MEMBERS=$(curl -s http://$PEER:2380/v2/members | jq -r '.members[] | "\(.name)=\(.peerURLs[0])"')
+    do
+        echo "Trying to find members"
+        sleep 10
+    done
+fi
 ETCD_PEERS=""
-for server in ${PEERS}
+for MEMBER in ${MEMBERS}
 do
-  ETCD_PEERS=${server}=${server},${ETCD_PEERS}
+  ETCD_PEERS=${MEMBER},${ETCD_PEERS}
 done
 ETCD_PEERS=$(echo ${ETCD_PEERS}|sed -rn 's/^(.*),$/\1/p')
+
 echo "EtcD peers: $ETCD_PEERS"
-until /opt/bin/etcd2-bootstrapper --me ${NODE_IP}=${NODE_IP} --members ${ETCD_PEERS} --out /etc/etcd.env
+until /opt/bin/etcd2-bootstrapper --me ${NODE_FQDN}=${NODE_PUBLIC_IP} --members ${ETCD_PEERS} --out /etc/etcd.env
 do
     echo "Trying to register Etcd node"
     sleep 10
 done
 cat <<EOF >> /etc/etcd.env
-ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_IP}:2379,http://${NODE_PUBLIC_IP}:2379
-ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_IP}:2380,http://${NODE_PUBLIC_IP}:2380
+ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_PUBLIC_IP}:2379
+ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_PUBLIC_IP}:2380
 ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
 ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
 EOF

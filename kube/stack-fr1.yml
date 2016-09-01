@@ -78,9 +78,9 @@ parameters:
     label: Token
     type: string
 
-  peers:
+  peer:
     default: 10.1.1.10
-    label: Peers
+    label: Peer
     type: string
 
 resources:
@@ -128,7 +128,7 @@ resources:
         type: kube-node.heat.yaml
         properties:
           token: { get_param: token }
-          peers: { get_param: peers }
+          peer: { get_param: peer }
           domain: { get_param: domain }
           subnet: { get_resource: subnet }
           security_group: { get_resource: security_group }

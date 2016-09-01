@@ -4,8 +4,8 @@ parameters:
   token:
     label: token
     type: string
-  peers:
-    label: peers
+  peer:
+    label: peer
     type: string
   mastercount:
     label: mastercount
@@ -86,7 +86,7 @@ resources:
             $master_count$: { get_param: mastercount }
             $subnet$: { get_param: subnet }
             $token$: { get_param: token }
-            $peers$: { get_param: peers }
+            $peer$: { get_param: peer }
           template: |
             #cloud-config
             write_files:
@@ -95,7 +95,7 @@ resources:
                 owner: "root:root"
                 content: |
                   #!/bin/bash
-                  echo WEAVE_PEERS=\"$peers$\" > /etc/weave.env
+                  echo WEAVE_PEERS=\"$peer$\" > /etc/weave.env
                   echo WEAVEPROXY_ARGS=\"--rewrite-inspect\" >> /etc/weave.env
               - path: /opt/pidalio-init.sh
                 permissions: 0700
@@ -111,7 +111,7 @@ resources:
                   NODE_ID=$NODE_ID
                   NODE_IP=$private_ipv4$
                   NODE_PUBLIC_IP=$public_ipv4$
-                  PEERS=$peers$
+                  PEER=$peer$
                   PIDALIO_TOKEN=$token$
                   DOMAIN=$domain$
                   OS_AUTH_URL=$os_auth$
