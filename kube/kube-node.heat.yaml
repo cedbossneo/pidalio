@@ -216,8 +216,6 @@ resources:
                     Conflicts=etcd.service
 
                     [Service]
-                    User=etcd
-                    Type=notify
                     Environment=ETCD_DATA_DIR=/var/lib/etcd2
                     Environment=ETCD_NAME=%m
                     ExecStart=/opt/pidalio-init.sh
