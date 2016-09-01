@@ -22,7 +22,6 @@ else
 fi
 source /etc/pidalio.env
 # Configure ETCD
-if cat /etc/etcd.env | grep ETCD_NAME; then exit 0; fi
 if [[ "$PEER" == "$NODE_IP" ]]
 then
     MEMBERS="$NODE_FQDN=$NODE_PUBLIC_IP"
