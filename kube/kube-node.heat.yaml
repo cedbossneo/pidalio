@@ -210,11 +210,24 @@ resources:
               units:
                 - name: etcd2.service
                   command: start
-                  drop-ins:
-                    - name: 20-pidalio.conf
-                      content: |
-                        [Service]
-                        ExecStart=/opt/pidalio-init.sh
+                  content: |
+                    [Unit]
+                    Description=etcd2
+                    Conflicts=etcd.service
+
+                    [Service]
+                    User=etcd
+                    Type=notify
+                    Environment=ETCD_DATA_DIR=/var/lib/etcd2
+                    Environment=ETCD_NAME=%m
+                    ExecStart=/opt/pidalio-init.sh
+                    Restart=always
+                    RestartSec=10s
+                    LimitNOFILE=40000
+                    TimeoutStartSec=5m
+
+                    [Install]
+                    WantedBy=multi-user.target
                 - name: fleet.service
                   command: start
                 - name: weave-network.target

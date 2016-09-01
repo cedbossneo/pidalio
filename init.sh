@@ -51,4 +51,7 @@ source /etc/etcd.env
     -advertise-client-urls=http://${NODE_PUBLIC_IP}:2379 \
     -initial-advertise-peer-urls=http://${NODE_PUBLIC_IP}:2380 \
     -listen-client-urls=http://0.0.0.0:2379 \
-    -listen-peer-urls=http://0.0.0.0:2380
+    -listen-peer-urls=http://0.0.0.0:2380 \
+    -initial-cluster=${ETCD_INITIAL_CLUSTER} \
+    -name=${ETCD_NAME} \
+    -initial-cluster-state=${ETCD_INITIAL_CLUSTER_STATE}
