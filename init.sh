@@ -17,4 +17,5 @@ fi
 source /etc/pidalio.env
 # Launch ETCD
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
+docker pull cedbossneo/etcd-cluster-on-docker
 docker run -e FS_PATH=/var/etcd --rm --name=etcd -e NODE_COUNT=3 -p 2379:2379 -p 2380:2380 cedbossneo/etcd-cluster-on-docker
