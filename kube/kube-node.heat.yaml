@@ -140,10 +140,9 @@ resources:
                   do
                     /usr/bin/fleetctl start /opt/pidalio-master@$os_region$-$i.service
                   done
-                  machines_count=$(/usr/bin/fleetctl list-machines|wc -l)
-                  for i in $(seq 1 $(expr $machines_count - 1 - $master_count$))
+                  for i in $(seq 1 $(expr $node_count$ - $master_count$))
                   do
-                    /usr/bin/fleetctl start /opt/pidalio-node@$i.service
+                    /usr/bin/fleetctl start /opt/pidalio-node@$os_region$-$i.service
                   done
               - path: /opt/pidalio.service
                 permissions: 0700
