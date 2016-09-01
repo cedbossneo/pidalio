@@ -123,8 +123,12 @@ resources:
                   OS_SUBNET=$subnet$
                   EOF
 
-                  rm -Rf /opt/pidalio
-                  git clone https://github.com/cedbossneo/pidalio.git /opt/pidalio
+                  if [[ -d /opt/pidalio ]]
+                  then
+                    echo "Pidalio already checkout"
+                  else
+                    git clone https://github.com/cedbossneo/pidalio.git /opt/pidalio
+                  fi
                   /opt/pidalio/init.sh
               - path: /opt/pidalio-units.sh
                 permissions: 0700
@@ -204,27 +208,13 @@ resources:
                   public-ip: "$public_ipv4$"
                   metadata: "region=$os_region$"
               units:
-                - name: pidalio-init.service
-                  command: start
-                  content: |
-                    [Unit]
-                    Description=Pidalio Config Service
-                    Before=pidalio-launch.service
-                    [Service]
-                    Type=oneshot
-                    RemainAfterExit=yes
-                    TimeoutStartSec=5m
-                    ExecStart=/opt/pidalio-init.sh
                 - name: etcd2.service
                   command: start
                   drop-ins:
-                    - name: 20-env.conf
+                    - name: 20-pidalio.conf
                       content: |
-                        [Unit]
-                        After=pidalio-init.service
-                        Requires=pidalio-init.service
                         [Service]
-                        EnvironmentFile=/etc/etcd.env
+                        ExecStart=/opt/pidalio-init.sh
                 - name: fleet.service
                   command: start
                 - name: weave-network.target
@@ -338,8 +328,8 @@ resources:
                   command: start
                   content: |
                     [Unit]
-                    After=fleet.service pidalio-init.service
-                    Requires=fleet.service pidalio-init.service
+                    After=fleet.service
+                    Requires=fleet.service
                     [Service]
                     Type=oneshot
                     RemainAfterExit=yes

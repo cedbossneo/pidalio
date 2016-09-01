@@ -46,9 +46,9 @@ do
     echo "Trying to register Etcd node"
     sleep 10
 done
-cat <<EOF >> /etc/etcd.env
-ETCD_ADVERTISE_CLIENT_URLS=http://${NODE_PUBLIC_IP}:2379
-ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${NODE_PUBLIC_IP}:2380
-ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
-EOF
+source /etc/etcd.env
+/usr/bin/etcd2 \
+    -advertise-client-urls=http://${NODE_PUBLIC_IP}:2379 \
+    -initial-advertise-peer-urls=http://${NODE_PUBLIC_IP}:2380 \
+    -listen-client-urls=http://0.0.0.0:2379 \
+    -listen-peer-urls=http://0.0.0.0:2380
