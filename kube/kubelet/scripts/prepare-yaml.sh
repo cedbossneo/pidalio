@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 rm -f /etc/kubernetes/manifests/* /etc/kubernetes/descriptors/*
-cp /opt/kube/descriptors/* /etc/kubernetes/descriptors
+cp /opt/pidalio/kube/kubelet/descriptors/* /etc/kubernetes/descriptors
 if [[ "${MASTER}" == "true" ]]
 then
-  cp /opt/kube/manifests/master/* /etc/kubernetes/manifests
+  cp /opt/pidalio/kube/kubelet/manifests/master/* /etc/kubernetes/manifests
 else
-  cp /opt/kube/manifests/node/* /etc/kubernetes/manifests
+  cp /opt/pidalio/kube/kubelet/manifests/node/* /etc/kubernetes/manifests
 
   echo "Waiting for Kubernetes..."
   PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
