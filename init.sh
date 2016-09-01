@@ -27,11 +27,12 @@ if [[ "$PEER" == "$NODE_IP" ]]
 then
     MEMBERS="$NODE_FQDN=$NODE_PUBLIC_IP"
 else
-    until MEMBERS=$(curl -s http://$PEER:2380/members | jq -r '.[] | "\(.name)=\(.peerURLs[0])"')
+    until curl -s http://$PEER:2380/members
     do
         echo "Trying to find members"
         sleep 10
     done
+    MEMBERS=$(curl -s http://$PEER:2380/members | jq -r '.[] | "\(.name)=\(.peerURLs[0])"')
 fi
 ETCD_PEERS=""
 for MEMBER in ${MEMBERS}
