@@ -21,6 +21,19 @@ EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd | sort)
 EXISTING_IDS=""
 for ip in ${EXISTING_IPS}
 do
+    ETCD_UP=0
+    for f in {1..10}; do
+        sleep 1
+        nc -w 1 ${ip} 2379
+        if [ $? -eq 0 ]; then
+            ETCD_UP=1
+            break
+        fi
+    done
+    if [ "$ETCD_UP" -eq 0 ]; then
+        echo "Etcd $ip did not come up...ignoring"
+        continue
+    fi
     IP_ID=$(curl -s -m 10 http://${ip}:2379/v2/stats/self | jq -r .name | cut -d'-' -f 2)
     EXISTING_IDS=${IP_ID},${EXISTING_IDS}
     echo "Etcd $ip already exist, ID: $IP_ID";
