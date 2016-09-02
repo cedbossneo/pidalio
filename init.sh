@@ -18,6 +18,8 @@ source /etc/pidalio.env
 # Launch ETCD
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
 docker pull cedbossneo/etcd-cluster-on-docker
+echo "Sleeping random time"
+sleep $(expr $RANDOM % 20)
 EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd | sort)
 ID="-1"
 for ip in ${EXISTING_IPS}
