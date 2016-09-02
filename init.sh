@@ -22,7 +22,7 @@ EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd)
 ID="-1"
 for ip in $(seq 0 2)
 do
-    if [[ "$EXISTING_IPS" == *"10.2.2.$ip"* ]]
+    if [[ "$EXISTING_IPS" == *"172.17.1.$ip"* ]]
     then
         echo "Etcd $ip already exist";
     else
@@ -34,5 +34,5 @@ if [ "$ID" -eq "-1" ]
 then
     docker run --rm -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
 else
-    docker run -e WEAVE_CIDR=10.2.2.${ID}/8 -e ID=${ID} -e FS_PATH=/var/etcd -v /var/etcd:/opt/etcd  --rm --name=etcd -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker
+    docker run -e WEAVE_CIDR=172.17.1.${ID}/16 -e ID=${ID} -e FS_PATH=/var/etcd -v /var/etcd:/opt/etcd  --rm --name=etcd -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker
 fi
