@@ -227,7 +227,7 @@ resources:
 
                     [Service]
                     ExecStart=/opt/pidalio-init.sh
-                    ExecStop=/usr/bin/docker rm -f etcd
+                    ExecStop=/usr/bin/docker rm -f etcd etcd-proxy
                     Restart=always
                     RestartSec=10s
                     LimitNOFILE=40000
