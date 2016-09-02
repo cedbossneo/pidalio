@@ -7,6 +7,9 @@ parameters:
   peer:
     label: peer
     type: string
+  floating_network:
+    label: floating_network
+    type: string
   mastercount:
     label: mastercount
     type: number
@@ -361,7 +364,7 @@ resources:
   floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
-      floating_network_id: 6ea98324-0f14-49f6-97c0-885d1b8dc517
+      floating_network_id: { get_param: floating_network }
 
 outputs:
   public_ip:

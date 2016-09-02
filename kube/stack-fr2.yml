@@ -143,6 +143,7 @@ resources:
           os_auth: { get_param: os_auth }
           os_region: fr2
           os_tenant_id: { get_param: 'OS::project_id' }
+          floating_network: b5dd7532-1533-4b9c-8bf9-e66631a9be1d
   scaleup_policy:
     type: OS::Heat::ScalingPolicy
     properties:
