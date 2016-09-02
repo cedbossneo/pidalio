@@ -14,6 +14,7 @@ else
     curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.6/bin/linux/amd64/kubectl
     chmod +x /opt/bin/kubectl
 fi
+docker pull cedbossneo/etcd-cluster-on-docker
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
 source /etc/pidalio.env
 EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd | sort)
