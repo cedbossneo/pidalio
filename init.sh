@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xe
+set -e
 # Create directories and download Kubernetes Components
 mkdir -p /etc/kubernetes/descriptors /etc/kubernetes/manifests /etc/kubernetes/ssl /opt/bin
 if [[ -x /opt/bin/kubelet ]]; then
