@@ -20,19 +20,21 @@ export DOCKER_HOST=unix:///var/run/weave/weave.sock
 docker pull cedbossneo/etcd-cluster-on-docker
 echo "Sleeping random time"
 sleep $(expr $RANDOM % 20)
-EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd | sort)
+EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd)
 ID="-1"
-for ip in ${EXISTING_IPS}
+for ip in $(seq 0 2)
 do
-    ID=$(expr $(echo ${ip} | cut -d'.' -f 4) + 1)
-    echo "Etcd $ip already exist, new ID: $ID";
+    if [[ "$EXISTING_IPS" == *"10.2.2.$ip"* ]]
+    then
+        echo "Etcd $ip already exist";
+    else
+        ID="${ip}"
+        break;
+    fi
 done
-if [ "$ID" -gt "2" ]
+if [ "$ID" -eq "-1" ]
 then
-    docker run -e WEAVE_CIDR=10.2.1.${ID}/8 --rm -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
-elif [ "$ID" -eq "-1" ]
-then
-    docker run -e WEAVE_CIDR=10.2.1.0/8 -e ID=0 -e FS_PATH=/var/etcd -v /var/etcd:/opt/etcd  --rm --name=etcd -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker
+    docker run -e WEAVE_CIDR=10.2.3.0/8 --rm -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
 else
-    docker run -e WEAVE_CIDR=10.2.1.${ID}/8 -e ID=${ID} -e FS_PATH=/var/etcd -v /var/etcd:/opt/etcd  --rm --name=etcd -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker
+    docker run -e WEAVE_CIDR=10.2.2.${ID}/8 -e ID=${ID} -e FS_PATH=/var/etcd -v /var/etcd:/opt/etcd  --rm --name=etcd -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker
 fi
