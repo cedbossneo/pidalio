@@ -30,7 +30,7 @@ for id in $(seq 0 2)
 do
     if [[ "$EXISTING_IDS" == *"$id"* ]]
     then
-        echo "$id already exist";
+        echo "ID $id already taken";
     else
         ID="${id}"
         break;
@@ -38,7 +38,9 @@ do
 done
 if [ "$ID" -eq "-1" ]
 then
+    echo "Running as proxy"
     docker run --rm -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
 else
+    echo "Using ID: $ID"
     docker run -e ID=${ID} -e FS_PATH=/var/etcd --rm --name=etcd -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker
 fi
