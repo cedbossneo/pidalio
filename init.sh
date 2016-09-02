@@ -24,8 +24,8 @@ do
     ETCD_UP=0
     for f in {1..10}; do
         sleep 1
-        curl -s -m 1 http://${ip}:2379/v2/stats/self
-        if [ $? -eq 0 ]; then
+        if curl -s -m 1 http://${ip}:2379/v2/stats/self
+        then
             ETCD_UP=1
             break
         fi
