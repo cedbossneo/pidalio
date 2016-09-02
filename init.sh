@@ -25,7 +25,7 @@ do
     ID=$(expr $(echo ${ip} | cut -d'.' -f 4) + 1)
     echo "Etcd $ip already exist, new ID: $ID";
 done
-if [ "$ID" -qt "2" ]
+if [ "$ID" -gt "2" ]
 then
     docker run --rm -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
 else
