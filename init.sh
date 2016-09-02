@@ -18,19 +18,14 @@ source /etc/pidalio.env
 # Launch ETCD
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
 docker pull cedbossneo/etcd-cluster-on-docker
-EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd)
+EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd | sort)
 ID="-1"
-for ip in $(seq 0 2)
+for ip in ${EXISTING_IPS}
 do
-    if [[ "$EXISTING_IPS" == *"172.17.1.$ip"* ]]
-    then
-        echo "Etcd $ip already exist";
-    else
-        ID="${ip}"
-        break;
-    fi
+    ID=$(expr $(echo ${ip} | cut -d'.' -f 4) + 1)
+    echo "Etcd $ip already exist, new ID: $ID";
 done
-if [ "$ID" -eq "-1" ]
+if [ "$ID" -qt "2" ]
 then
     docker run --rm -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
 else
