@@ -26,7 +26,7 @@ do
     echo "Etcd $ip already exist, ID: $IP_ID";
 done
 ID="-1"
-for id in $(seq 0 2)
+for id in $(seq 0 7)
 do
     if [[ "$EXISTING_IDS" == *"$id"* ]]
     then
