@@ -14,27 +14,30 @@ else
     curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.6/bin/linux/amd64/kubectl
     chmod +x /opt/bin/kubectl
 fi
-source /etc/pidalio.env
-# Launch ETCD
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
-docker pull cedbossneo/etcd-cluster-on-docker
-echo "Sleeping random time"
-sleep $(expr $RANDOM % 20)
-EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd)
-ID="-1"
-for ip in $(seq 0 2)
+source /etc/pidalio.env
+EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd | sort)
+EXISTING_IDS=""
+for ip in ${EXISTING_IPS}
 do
-    if [[ "$EXISTING_IPS" == *"10.2.2.$ip"* ]]
+    IP_ID=$(curl -s http://${ip}:2379/v2/stats/self | jq -r .name | cut -d'-' -f 2)
+    EXISTING_IDS=${IP_ID},${EXISTING_IDS}
+    echo "Etcd $ip already exist, ID: $IP_ID";
+done
+ID="-1"
+for id in $(seq 0 2)
+do
+    if [[ "$EXISTING_IDS" == *"$id"* ]]
     then
-        echo "Etcd $ip already exist";
+        echo "$id already exist";
     else
-        ID="${ip}"
+        ID="${id}"
         break;
     fi
 done
 if [ "$ID" -eq "-1" ]
 then
-    docker run -e WEAVE_CIDR=10.2.3.0/8 --rm -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
+    docker run --rm -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
 else
-    docker run -e WEAVE_CIDR=10.2.2.${ID}/8 -e ID=${ID} -e FS_PATH=/var/etcd -v /var/etcd:/opt/etcd  --rm --name=etcd -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker
+    docker run -e ID=${ID} -e FS_PATH=/var/etcd --rm --name=etcd -p 2379:2379 -p 2380:2380 -p 4001:4001 -p 7001:7001 cedbossneo/etcd-cluster-on-docker
 fi
