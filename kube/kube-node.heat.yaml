@@ -168,6 +168,7 @@ resources:
                   RestartSec=10
                   Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
                   ExecStartPre=/usr/bin/docker pull cedbossneo/pidalio
+                  ExecStartPre=/usr/bin/etcdctl cluster-health
                   ExecStart=/usr/bin/docker run --name=pidalio \
                     -e TOKEN=$token$ \
                     -e ETCD_URI=http://$private_ipv4$:2379 \
@@ -226,6 +227,8 @@ resources:
                     Conflicts=etcd.service
 
                     [Service]
+                    EnvironmentFile=-/etc/weave.env
+                    ExecStartPre=/opt/bin/weave expose
                     ExecStart=/opt/pidalio-init.sh
                     ExecStop=/usr/bin/docker rm -f etcd etcd-proxy
                     Restart=always
@@ -272,6 +275,7 @@ resources:
                     Requires=docker.service weave-init.service
                     Before=weave.service
                     Description=Install Weave
+                    Requires=network-online.target
                     [Service]
                     EnvironmentFile=-/etc/weave.env
                     Type=oneshot
@@ -299,7 +303,6 @@ resources:
                     Requires=install-weave.service
                     [Service]
                     EnvironmentFile=-/etc/weave.env
-                    ExecStartPre=-/opt/bin/weave stop-proxy
                     ExecStartPre=/opt/bin/weave launch-proxy $WEAVEPROXY_ARGS
                     ExecStart=/usr/bin/docker attach weaveproxy
                     Restart=on-failure
@@ -319,30 +322,10 @@ resources:
                     [Service]
                     TimeoutStartSec=5m
                     EnvironmentFile=-/etc/weave.env
-                    ExecStartPre=-/opt/bin/weave stop-router
                     ExecStartPre=/opt/bin/weave launch-router $WEAVE_PEERS
                     ExecStart=/usr/bin/docker attach weave
                     Restart=on-failure
                     ExecStop=/opt/bin/weave stop-router
-                    [Install]
-                    WantedBy=weave-network.target
-                - name: weave-expose.service
-                  enable: true
-                  content: |
-                    [Unit]
-                    After=install-weave.service
-                    After=weave.service
-                    After=docker.service
-                    Documentation=http://weave.works/docs
-                    Requires=docker.service
-                    Requires=install-weave.service
-                    Requires=weave.service
-                    [Service]
-                    TimeoutStartSec=5m
-                    EnvironmentFile=-/etc/weave.env
-                    ExecStart=/opt/bin/weave expose
-                    Restart=on-failure
-                    RestartSec=10
                     [Install]
                     WantedBy=weave-network.target
                 - name: pidalio-launch.service
