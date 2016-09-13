@@ -39,7 +39,7 @@ EOF
 if [[ "${MASTER}" == "true" ]]
 then
   # Server Certificate
-  curl -s ${PIDALIO_URL}/certs/server\?token\=${PIDALIO_TOKEN}\&ip=${NODE_PUBLIC_IP},${NODE_IP} > server.json
+  curl -s ${PIDALIO_URL}/certs/server\?token\=${PIDALIO_TOKEN}\&ip=${NODE_PUBLIC_IP} > server.json
   cat server.json | jq -r .privateKey > /etc/kubernetes/ssl/server-key.pem
   cat server.json | jq -r .cert > /etc/kubernetes/ssl/server.pem
 fi
