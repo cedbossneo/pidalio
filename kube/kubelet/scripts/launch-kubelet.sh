@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 if [[ "${MASTER}" == "true" ]]
 then
+  (
+    until curl -m 5 http://localhost:8080/healthz
+    do
+        echo "Waiting for master to be ready"
+        sleep 10
+    done
+    /opt/bin/kubectl create -f /etc/kubernetes/descriptors
+  ) &
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=http://127.0.0.1:8080 \
@@ -22,14 +30,6 @@ else
   PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
   MASTERS_URLS=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
   echo Masters: ${MASTERS_URLS}
-  (
-    until curl -m 5 http://localhost:8080/healthz
-    do
-        echo "Waiting for master to be ready"
-        sleep 10
-    done
-    /opt/bin/kubectl create -f /etc/kubernetes/descriptors
-  ) &
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=${MASTERS_URLS} \
