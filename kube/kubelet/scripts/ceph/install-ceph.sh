@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-TMP=$(mktemp)
+TMP=$(mktemp -d)
 FS_ID=$(uuidgen)
 cd $TMP
 cp /opt/pidalio/kube/kubelet/scripts/ceph/keys/* .
