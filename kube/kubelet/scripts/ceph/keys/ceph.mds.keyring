@@ -1,0 +1,3 @@
+[client.bootstrap-mds]
+  key = $token$
+  caps mon = "allow profile bootstrap-mds"

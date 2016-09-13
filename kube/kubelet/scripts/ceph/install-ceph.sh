@@ -1,21 +1,24 @@
 #!/usr/bin/env bash
-set -e
-
-checksum()
-{
-	md5sum $1 | awk '{print $1}'
-}
-
-for UTIL in ceph rbd ceph-rbdnamer rados ceph-disk; do
-
-    if [ ! -e /opt/bin/$UTIL ] || [ "$(checksum /opt/bin/$UTIL)" != "$(checksum /opt/pidalio/kube/kubelet/scripts/ceph/$UTIL)" ]; then
-    	echo "Installing $UTIL to /opt/bin"
-    	cp -pf /opt/pidalio/kube/kubelet/scripts/ceph/$UTIL /opt/bin
-    fi
-
+TMP=$(mktemp)
+FS_ID=$(uuidgen)
+cd $TMP
+cp /opt/pidalio/kube/kubelet/scripts/ceph/keys/* .
+for file in $(ls *)
+do
+    sed -i s/\\\$token\\\$/${PIDALIO_TOKEN}/g ${file}
+    sed -i s/\\\$fsid\\\$/${FS_ID}/g ${file}
 done
-
-if [ ! -e /etc/udev/rules.d/50-rbd.rules ] || [ "$(checksum /etc/udev/rules.d/50-rbd.rules)" != "$(checksum /opt/pidalio/kube/kubelet/scripts/ceph/50-rbd.rules)" ]; then
-    echo "Installing 50-rbd.rules to /etc/udev/rules.d/"
-    cp -pf /opt/pidalio/kube/kubelet/scripts/ceph/50-rbd.rules /etc/udev/rules.d/
-fi
+echo ${PIDALIO_TOKEN} > ceph-client-key
+/opt/bin/kubectl create namespace ceph
+/opt/bin/kubectl create secret generic ceph-conf-combined --from-file=ceph.conf --from-file=ceph.client.admin.keyring --from-file=ceph.mon.keyring --namespace=ceph
+/opt/bin/kubectl create secret generic ceph-bootstrap-rgw-keyring --from-file=ceph.keyring=ceph.rgw.keyring --namespace=ceph
+/opt/bin/kubectl create secret generic ceph-bootstrap-mds-keyring --from-file=ceph.keyring=ceph.mds.keyring --namespace=ceph
+/opt/bin/kubectl create secret generic ceph-bootstrap-osd-keyring --from-file=ceph.keyring=ceph.osd.keyring --namespace=ceph
+/opt/bin/kubectl create secret generic ceph-client-key --from-file=ceph-client-key --namespace=ceph
+/opt/bin/kubectl create \
+-f /opt/pidalio/kube/kubelet/scripts/ceph/yaml/ceph-mds-v1-dp.yaml \
+-f /opt/pidalio/kube/kubelet/scripts/ceph/yaml/ceph-mon-v1-svc.yaml \
+-f /opt/pidalio/kube/kubelet/scripts/ceph/yaml/ceph-mon-v1-dp.yaml \
+-f /opt/pidalio/kube/kubelet/scripts/ceph/yaml/ceph-mon-check-v1-dp.yaml \
+-f /opt/pidalio/kube/kubelet/scripts/ceph/yaml/ceph-osd-v1-ds.yaml \
+--namespace=ceph

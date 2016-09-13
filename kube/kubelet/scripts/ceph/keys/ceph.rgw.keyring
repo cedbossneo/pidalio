@@ -1,0 +1,3 @@
+[client.bootstrap-rgw]
+  key = $token$
+  caps mon = "allow profile bootstrap-rgw"
