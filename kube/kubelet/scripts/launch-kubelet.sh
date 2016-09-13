@@ -19,14 +19,11 @@ then
     --register-node=true \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
-    --node-ip=${NODE_IP} \
     --hostname-override=${NODE_NAME} \
     --cluster-dns=10.16.0.3 \
     --cluster-domain=${DOMAIN} \
     --cloud-provider=openstack \
     --cloud-config=/etc/kubernetes/cloud.conf \
-    --tls-cert-file=/etc/kubernetes/ssl/node.pem \
-    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 else
@@ -40,12 +37,9 @@ else
     --node-labels=mode=SchedulingDisabled \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
-    --node-ip=${NODE_IP} \
     --hostname-override=${NODE_NAME} \
     --cluster-dns=10.16.0.3 \
     --cluster-domain=${DOMAIN} \
-    --tls-cert-file=/etc/kubernetes/ssl/node.pem \
-    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
     --cloud-provider=openstack \
     --cloud-config=/etc/kubernetes/cloud.conf \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
