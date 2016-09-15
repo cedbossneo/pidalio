@@ -29,7 +29,30 @@ then
 else
   PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
   MASTERS_URLS=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
+  MASTER_URL=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | head -n 1)
   echo Masters: ${MASTERS_URLS}
+  mkdir -p /home/core/.kube
+  cat <<EOF > /home/core/.kube/config
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: /etc/kubernetes/ssl/ca.pem
+    server: ${MASTER_URL}
+  name: local
+contexts:
+- context:
+    cluster: local
+    user: local
+  name: local
+current-context: local
+kind: Config
+preferences: {}
+users:
+- name: local
+  user:
+    client-certificate: /etc/kubernetes/ssl/node.pem
+    client-key: /etc/kubernetes/ssl/node-key.pem
+EOF
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=${MASTERS_URLS} \

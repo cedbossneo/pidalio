@@ -93,6 +93,7 @@ func CreateServerCertificate(rootCerts RootCerts, additionalAltNames []string) (
 	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes.default")
 	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes.default.svc")
 	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes.default.svc." + os.Getenv("DOMAIN"))
+	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:10.16.0.1") // Trick
 	certificate.AddExtension(openssl.NID_subject_alt_name, "IP:10.16.0.1")
 	for i := 0; i < len(additionalAltNames); i++ {
 		certificate.AddExtension(openssl.NID_subject_alt_name, "IP:" + additionalAltNames[i])
