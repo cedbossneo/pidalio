@@ -24,8 +24,6 @@ then
     --cluster-domain=${DOMAIN} \
     --cloud-provider=openstack \
     --cloud-config=/etc/kubernetes/cloud.conf \
-    --tls-cert-file=/etc/kubernetes/ssl/node.pem \
-    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 else
@@ -42,8 +40,6 @@ else
     --hostname-override=${NODE_NAME} \
     --cluster-dns=10.16.0.3 \
     --cluster-domain=${DOMAIN} \
-    --tls-cert-file=/etc/kubernetes/ssl/node.pem \
-    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
     --cloud-provider=openstack \
     --cloud-config=/etc/kubernetes/cloud.conf \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
