@@ -55,7 +55,7 @@ EOF
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=${MASTERS_URLS} \
     --register-node=true \
-    --node-labels=mode=SchedulingDisabled \
+    --node-labels=mode=SchedulingDisabled,type=${NODE_TYPE} \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
     --hostname-override=${NODE_PUBLIC_IP} \
