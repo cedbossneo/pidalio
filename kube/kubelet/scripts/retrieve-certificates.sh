@@ -20,10 +20,8 @@ then
   curl -s ${PIDALIO_URL}/certs/server\?token\=${PIDALIO_TOKEN}\&ip=${NODE_PUBLIC_IP} > server.json
   cat server.json | jq -r .privateKey > /etc/kubernetes/ssl/server-key.pem
   cat server.json | jq -r .cert > /etc/kubernetes/ssl/server.pem
-  curl -s ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&fqdn=${NODE_FQDN}\&ip=${NODE_PUBLIC_IP},10.16.0.1 > node.json
-else
-  curl -s ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&fqdn=${NODE_FQDN}\&ip=${NODE_PUBLIC_IP} > node.json
 fi
+curl -s ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&fqdn=${NODE_FQDN}\&ip=${NODE_PUBLIC_IP} > node.json
 cat node.json | jq -r .privateKey > /etc/kubernetes/ssl/node-key.pem
 cat node.json | jq -r .cert > /etc/kubernetes/ssl/node.pem
 cat <<EOF > /etc/kubernetes/kubeconfig.yaml

@@ -3,7 +3,6 @@ package api
 import "github.com/cedbossneo/pidalio/ssl"
 import (
 	"github.com/gin-gonic/gin"
-	"strings"
 	"net/http"
 	"github.com/cedbossneo/pidalio/k8s"
 	"errors"
@@ -49,7 +48,7 @@ func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 			c.AbortWithError(http.StatusBadRequest, errors.New("ip not defined"))
 			return
 		}
-		cert, private, public, err := ssl.CreateServerCertificate(rootCerts, strings.Split(ip, ","))
+		cert, private, public, err := ssl.CreateServerCertificate(rootCerts, ip)
 		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
 			"cert": string(cert),
@@ -68,7 +67,7 @@ func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 			c.AbortWithError(http.StatusBadRequest, errors.New("fqdn not defined"))
 			return
 		}
-		cert, private, public, err := ssl.CreateNodeCertificate(rootCerts, fqdn, strings.Split(ip, ","))
+		cert, private, public, err := ssl.CreateNodeCertificate(rootCerts, fqdn, ip)
 		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
 			"cert": string(cert),
