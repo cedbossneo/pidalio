@@ -23,6 +23,8 @@ then
     --hostname-override=${NODE_PUBLIC_IP} \
     --cluster-dns=10.16.0.3 \
     --cluster-domain=${DOMAIN} \
+    --tls-cert-file=/etc/kubernetes/ssl/node.pem \
+    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 else
@@ -64,5 +66,7 @@ EOF
     --cluster-dns=10.16.0.3 \
     --cluster-domain=${DOMAIN} \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
+    --tls-cert-file=/etc/kubernetes/ssl/node.pem \
+    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
     @*
 fi
