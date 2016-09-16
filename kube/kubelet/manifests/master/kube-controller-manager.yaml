@@ -13,8 +13,6 @@ spec:
     - controller-manager
     - --master=http://127.0.0.1:8080
     - --leader-elect=true
-    - --cloud-provider=openstack
-    - --cloud-config=/etc/kubernetes/cloud.conf
     - --service-account-private-key-file=/etc/kubernetes/ssl/server-key.pem
     - --pod-eviction-timeout=1m0s
     - --root-ca-file=/etc/kubernetes/ssl/ca.pem
