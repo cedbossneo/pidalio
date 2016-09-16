@@ -19,11 +19,9 @@ then
     --register-node=true \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
-    --hostname-override=${NODE_NAME} \
+    --hostname-override=${NODE_PUBLIC_IP} \
     --cluster-dns=10.16.0.3 \
     --cluster-domain=${DOMAIN} \
-    --cloud-provider=openstack \
-    --cloud-config=/etc/kubernetes/cloud.conf \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 else
@@ -60,11 +58,9 @@ EOF
     --node-labels=mode=SchedulingDisabled \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
-    --hostname-override=${NODE_NAME} \
+    --hostname-override=${NODE_PUBLIC_IP} \
     --cluster-dns=10.16.0.3 \
     --cluster-domain=${DOMAIN} \
-    --cloud-provider=openstack \
-    --cloud-config=/etc/kubernetes/cloud.conf \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     @*
 fi
