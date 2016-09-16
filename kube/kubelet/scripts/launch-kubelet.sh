@@ -10,7 +10,7 @@ then
     # Initialize Kubernetes Addons
     /opt/bin/kubectl create -f /etc/kubernetes/descriptors
     # Initialize Ceph
-    /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
+    # /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
   ) &
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
