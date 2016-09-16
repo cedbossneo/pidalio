@@ -131,7 +131,7 @@ func CreateAdminCertificate(rootCerts RootCerts) ([]byte, []byte, []byte, error)
 	return cert, pemPrivateKey, pemPublicKey, nil
 }
 
-func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte, []byte, []byte, error) {
+func CreateNodeCertificate(rootCerts RootCerts, fqdn string, additionalAltNames []string) ([]byte, []byte, []byte, error) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName: fqdn,
@@ -147,7 +147,9 @@ func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte,
 	}
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
-	certificate.AddExtension(openssl.NID_subject_alt_name, fmt.Sprintf("IP:%s", ip))
+	for i := 0; i < len(additionalAltNames); i++ {
+		certificate.AddExtension(openssl.NID_subject_alt_name, "IP:" + additionalAltNames[i])
+	}
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
