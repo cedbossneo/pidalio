@@ -18,6 +18,7 @@ then
     --register-schedulable=false \
     --register-node=true \
     --allow-privileged=true \
+    --node-ip=${NODE_IP} \
     --config=/etc/kubernetes/manifests \
     --hostname-override=${NODE_PUBLIC_IP} \
     --cluster-dns=10.16.0.3 \
@@ -57,6 +58,7 @@ EOF
     --register-node=true \
     --node-labels=mode=SchedulingDisabled,type=${NODE_TYPE} \
     --allow-privileged=true \
+    --node-ip=${NODE_IP} \
     --config=/etc/kubernetes/manifests \
     --hostname-override=${NODE_PUBLIC_IP} \
     --cluster-dns=10.16.0.3 \
