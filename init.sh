@@ -43,7 +43,7 @@ do
     echo "Etcd $ip already exist, ID: $IP_ID";
 done
 ID="-1"
-for id in $(seq 0 ${ETCD_NODES})
+for id in $(seq 1 ${ETCD_NODES})
 do
     if [[ "$EXISTING_IDS" == *"$id"* ]]
     then

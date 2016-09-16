@@ -114,6 +114,8 @@ resources:
                   NODE_ID=$NODE_ID
                   NODE_IP=$private_ipv4$
                   NODE_PUBLIC_IP=$public_ipv4$
+                  NODE_TYPE=cloudwatt
+                  ETCD_NODES=3
                   PEER=$peer$
                   PIDALIO_TOKEN=$token$
                   DOMAIN=$domain$
