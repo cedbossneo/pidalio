@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+mkdir -p /etc/ceph
 TMP=$(mktemp -d)
 FS_ID=$(uuidgen)
 cd $TMP
@@ -8,7 +9,7 @@ do
     sed -i s/\\\$token\\\$/${PIDALIO_TOKEN}/g ${file}
     sed -i s/\\\$fsid\\\$/${FS_ID}/g ${file}
 done
-echo ${PIDALIO_TOKEN} > ceph-client-key
+echo AQDP299XAAAAABAA9ut3smkroIdHsYCfqf5YWQ== > ceph-client-key
 /opt/bin/kubectl create namespace ceph
 /opt/bin/kubectl create secret generic ceph-conf-combined --from-file=ceph.conf --from-file=ceph.client.admin.keyring --from-file=ceph.mon.keyring --namespace=ceph
 /opt/bin/kubectl create secret generic ceph-bootstrap-rgw-keyring --from-file=ceph.keyring=ceph.rgw.keyring --namespace=ceph

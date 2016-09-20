@@ -13,7 +13,8 @@ then
     # /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
   ) &
   /opt/bin/kubelet \
-    --docker-endpoint=unix:///var/run/weave/weave.sock \
+    --network-plugin=cni \
+    --network-plugin-dir=/etc/cni/net.d \
     --api-servers=http://127.0.0.1:8080 \
     --register-schedulable=false \
     --register-node=true \
@@ -21,7 +22,7 @@ then
     --node-ip=${NODE_IP} \
     --config=/etc/kubernetes/manifests \
     --hostname-override=${NODE_PUBLIC_IP} \
-    --cluster-dns=10.16.0.3 \
+    --cluster-dns=10.244.0.3 \
     --cluster-domain=${DOMAIN} \
     --tls-cert-file=/etc/kubernetes/ssl/node.pem \
     --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
@@ -55,7 +56,8 @@ users:
     client-key: /etc/kubernetes/ssl/node-key.pem
 EOF
   /opt/bin/kubelet \
-    --docker-endpoint=unix:///var/run/weave/weave.sock \
+    --network-plugin=cni \
+    --network-plugin-dir=/etc/cni/net.d \
     --api-servers=${MASTERS_URLS} \
     --register-node=true \
     --node-labels=mode=SchedulingDisabled,type=${NODE_TYPE} \
@@ -63,7 +65,7 @@ EOF
     --node-ip=${NODE_IP} \
     --config=/etc/kubernetes/manifests \
     --hostname-override=${NODE_PUBLIC_IP} \
-    --cluster-dns=10.16.0.3 \
+    --cluster-dns=10.244.0.3 \
     --cluster-domain=${DOMAIN} \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     --tls-cert-file=/etc/kubernetes/ssl/node.pem \
