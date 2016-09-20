@@ -14,7 +14,7 @@ spec:
     - --master=http://127.0.0.1:8080
     - --leader-elect=true
     - --service-account-private-key-file=/etc/kubernetes/ssl/server-key.pem
-    - --pod-eviction-timeout=1m0s
+    - --pod-eviction-timeout=30s
     - --root-ca-file=/etc/kubernetes/ssl/ca.pem
     livenessProbe:
       httpGet:

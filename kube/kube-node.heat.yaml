@@ -210,6 +210,7 @@ resources:
               fleet:
                   public-ip: "$public_ipv4$"
                   metadata: "region=$os_region$"
+                  etcd_servers: "http://localhost:2379"
               units:
                 - name: etcd2.service
                   command: start
