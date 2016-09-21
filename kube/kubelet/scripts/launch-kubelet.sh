@@ -54,7 +54,7 @@ users:
     client-certificate: /etc/kubernetes/ssl/node.pem
     client-key: /etc/kubernetes/ssl/node-key.pem
 EOF
-  chown -r core:core /home/core/.kube
+  chown -R core:core /home/core/.kube
   /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=${MASTERS_URLS} \
