@@ -1,7 +1,7 @@
 package ssl
 
 import (
-	"github.com/spacemonkeygo/openssl"
+	"github.com/sgallagher/openssl"
 	"log"
 	"github.com/cedbossneo/pidalio/etcd"
 	"time"
@@ -59,6 +59,7 @@ func CreateRootCertificate(etcd etcd.EtcdClient, token string, key openssl.Priva
 	if err != nil {
 		log.Fatal("Error while creating Root CA", err)
 	}
+	certificate.SetVersion(openssl.X509_V3)
 	certificate.Sign(key, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
 	if err != nil {
@@ -86,6 +87,7 @@ func CreateServerCertificate(rootCerts RootCerts, ip string) ([]byte, []byte, []
 		log.Print("Error while creating Server CA", err)
 		return nil, nil, nil, err
 	}
+	certificate.SetVersion(openssl.X509_V3)
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
 	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc." + os.Getenv("DOMAIN") + ", IP:10.244.0.1, IP:"+ip)
@@ -113,6 +115,7 @@ func CreateAdminCertificate(rootCerts RootCerts) ([]byte, []byte, []byte, error)
 		log.Print("Error while creating Admin CA", err)
 		return nil, nil, nil, err
 	}
+	certificate.SetVersion(openssl.X509_V3)
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
@@ -137,6 +140,7 @@ func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte,
 		log.Print("Error while creating Node CA", err)
 		return nil, nil, nil, err
 	}
+	certificate.SetVersion(openssl.X509_V3)
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
 	certificate.AddExtension(openssl.NID_subject_alt_name, "IP:" + ip)

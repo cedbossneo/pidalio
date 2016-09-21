@@ -4,7 +4,7 @@ import:
   version: master
 - package: github.com/coreos/etcd/client
   version: master
-- package: github.com/spacemonkeygo/openssl
+- package: github.com/sgallagher/openssl
   version: master
 - package: github.com/YakLabs/k8s-client
   version: master
