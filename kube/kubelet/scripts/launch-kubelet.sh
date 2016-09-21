@@ -13,7 +13,8 @@ then
     # /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
   ) &
   /opt/bin/kubelet \
-    --docker-endpoint=unix:///var/run/weave/weave.sock \
+    --network-plugin=cni \
+    --network-plugin-dir=/etc/cni/net.d \
     --api-servers=http://127.0.0.1:8080 \
     --register-schedulable=false \
     --register-node=true \
@@ -56,7 +57,8 @@ users:
 EOF
   chown -R core:core /home/core/.kube
   /opt/bin/kubelet \
-    --docker-endpoint=unix:///var/run/weave/weave.sock \
+    --network-plugin=cni \
+    --network-plugin-dir=/etc/cni/net.d \
     --api-servers=${MASTERS_URLS} \
     --register-node=true \
     --node-labels=mode=SchedulingDisabled,type=${NODE_TYPE} \
