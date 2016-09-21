@@ -60,5 +60,5 @@ then
     docker run --rm --name=etcd-proxy -p 2379:2379 -p 2380:2380 cedbossneo/etcd-cluster-on-docker /bin/etcd_proxy.sh
 else
     echo "Using ID: $ID"
-    docker run -e ID=${ID} -e FS_PATH=/var/etcd -v /opt/etcd:/var/etcd --rm --name=etcd -p 2379:2379 -p 2380:2380 cedbossneo/etcd-cluster-on-docker
+    docker run -e ID=${ID} -e FS_PATH=/var/etcd --rm --name=etcd -p 2379:2379 -p 2380:2380 cedbossneo/etcd-cluster-on-docker
 fi
