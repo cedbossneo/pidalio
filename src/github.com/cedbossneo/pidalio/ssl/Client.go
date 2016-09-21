@@ -59,7 +59,6 @@ func CreateRootCertificate(etcd etcd.EtcdClient, token string, key openssl.Priva
 	if err != nil {
 		log.Fatal("Error while creating Root CA", err)
 	}
-	certificate.SetVersion(openssl.X509_V3)
 	certificate.Sign(key, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
 	if err != nil {

@@ -55,6 +55,7 @@ users:
     client-certificate: /etc/kubernetes/ssl/node.pem
     client-key: /etc/kubernetes/ssl/node-key.pem
 EOF
+  chown -r core:core /home/core/.kube
   /opt/bin/kubelet \
     --network-plugin=cni \
     --network-plugin-dir=/etc/cni/net.d \
