@@ -4,7 +4,6 @@ metadata:
   name: kube-apiserver
   namespace: kube-system
 spec:
-  hostNetwork: true
   containers:
   - name: kube-apiserver
     image: quay.io/coreos/hyperkube:v1.3.7_coreos.0
@@ -26,6 +25,10 @@ spec:
     ports:
     - containerPort: 443
       name: https
+      hostPort: 443
+    - containerPort: 8080
+      name: http
+      hostPort: 8080
     volumeMounts:
     - mountPath: /etc/kubernetes/ssl
       name: ssl-certs-kubernetes
