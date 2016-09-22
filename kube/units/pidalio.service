@@ -8,10 +8,11 @@ Requires=fleet.service
 Restart=always
 RestartSec=10
 Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
+EnvironmentFile=/etc/pidalio.env
 ExecStartPre=/usr/bin/docker pull cedbossneo/pidalio
 ExecStartPre=/usr/bin/etcdctl cluster-health
 ExecStart=/usr/bin/docker run --name=pidalio \
-  -e TOKEN=$token$ \
+  -e TOKEN=${PIDALIO_TOKEN} \
   -e ETCD_URI=http://etcd:2379 \
   cedbossneo/pidalio
 ExecStop=/usr/bin/docker rm -f pidalio
