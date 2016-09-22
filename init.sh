@@ -14,6 +14,7 @@ else
     curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.7/bin/linux/amd64/kubectl
     chmod +x /opt/bin/kubectl
 fi
+source /etc/pidalio.env
 #Fix DNS
 DNS_IP=$(/opt/bin/weave report | jq -r .DNS.Address|cut -d':' -f 1)
 cat <<EOF > /etc/systemd/network/00-en.network
@@ -26,7 +27,6 @@ EOF
 /usr/bin/systemctl restart systemd-networkd
 /opt/pidalio/kube/kubelet/scripts/prepare-units.sh
 #/opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
-source /etc/pidalio.env
 docker pull cedbossneo/etcd-cluster-on-docker
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
 SLEEP_TIME=$(expr $RANDOM % 30)

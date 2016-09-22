@@ -113,6 +113,7 @@ resources:
                   NODE_IP=$private_ipv4$
                   NODE_PUBLIC_IP=$public_ipv4$
                   NODE_TYPE=cloudwatt
+                  DNS_UPSTREAM=185.23.94.236
                   REGION=$os_region$
                   ETCD_NODES=3
                   PEER=$peer$
