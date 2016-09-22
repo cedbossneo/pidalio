@@ -89,7 +89,7 @@ func CreateServerCertificate(rootCerts RootCerts, ip string) ([]byte, []byte, []
 	certificate.SetVersion(openssl.X509_V3)
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
-	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc., DNS:pidalio-apiserver.weave.local." + os.Getenv("DOMAIN") + ", IP:10.244.0.1, IP:"+ip)
+	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc." + os.Getenv("DOMAIN") + ", DNS:pidalio-apiserver, DNS:pidalio-apiserver.weave.local, IP:10.244.0.1, IP:"+ip)
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()

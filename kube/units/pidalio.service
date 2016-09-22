@@ -13,6 +13,7 @@ ExecStartPre=/usr/bin/docker pull cedbossneo/pidalio
 ExecStartPre=/usr/bin/etcdctl cluster-health
 ExecStart=/usr/bin/docker run --name=pidalio \
   -e TOKEN=${PIDALIO_TOKEN} \
+  -e DOMAIN=${DOMAIN} \
   -e ETCD_URI=http://etcd:2379 \
   cedbossneo/pidalio
 ExecStop=/usr/bin/docker rm -f pidalio
