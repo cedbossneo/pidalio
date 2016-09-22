@@ -11,13 +11,15 @@ Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/prepare-yaml.sh
 ExecStart=/usr/bin/docker run \
+    -e PIDALIO_TOKEN=$PIDALIO_TOKEN \
+    -e MASTER=$MASTER \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --publish 8080:8080 \
     --publish 443:443 \
     --rm \
     --name=pidalio-apiserver \
-    quay.io/coreos/hyperkube:v1.3.7_coreos.0 \
+    cedbossneo/hyperkube:v1.3.7 \
     /hyperkube \
     apiserver \
     --bind-address=0.0.0.0 \
