@@ -133,79 +133,18 @@ resources:
                 content: |
                   #!/bin/bash
                   set -xe
-                  /usr/bin/fleetctl start /opt/pidalio.service
-                  for i in $(seq 1 $master_count$)
-                  do
-                    /usr/bin/fleetctl start /opt/pidalio-master@$os_region$-$i.service
-                  done
-                  while true
-                  do
-                    nb_machines=$(fleetctl list-machines | grep region=$os_region$ | wc -l)
-                    for i in $(seq 1 $(expr $nb_machines - $master_count$))
+                  while true; do
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-proxy.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-node.service
+                    for i in $(seq 1 $master_count$)
                     do
-                      /usr/bin/fleetctl start /opt/pidalio-node@$os_region$-$i.service
+                      /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-apiserver@$os_region$-$i.service
+                      /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-controller@$os_region$-$i.service
+                      /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-scheduler@$os_region$-$i.service
                     done
                     sleep 60
                   done
-              - path: /opt/pidalio.service
-                permissions: 0700
-                owner: "root:root"
-                content: |
-                  [Unit]
-                  Description=Pidalio Service
-                  After=weave-network.target
-                  After=etcd2.service
-                  Requires=weave-network.target
-                  Requires=etcd2.service
-                  [Service]
-                  Restart=always
-                  RestartSec=10
-                  Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
-                  ExecStartPre=/usr/bin/docker pull cedbossneo/pidalio
-                  ExecStartPre=/usr/bin/etcdctl cluster-health
-                  ExecStart=/usr/bin/docker run --name=pidalio \
-                    -e TOKEN=$token$ \
-                    -e ETCD_URI=http://$private_ipv4$:2379 \
-                    cedbossneo/pidalio
-                  ExecStop=/usr/bin/docker rm -f pidalio
-              - path: /opt/pidalio-master@.service
-                permissions: 0700
-                owner: "root:root"
-                content: |
-                  [Unit]
-                  Description=Pidalio Master Service
-                  After=weave-network.target etcd2.service
-                  Requires=weave-network.target etcd2.service
-                  [Service]
-                  Restart=always
-                  RestartSec=10
-                  EnvironmentFile=/etc/pidalio.env
-                  Environment=MASTER=true
-                  ExecStart=/opt/pidalio/start.sh
-                  ExecStop=/opt/pidalio/stop.sh
-                  [X-Fleet]
-                  MachineMetadata=region=$os_region$
-                  Conflicts=pidalio-master@*.service
-                  Conflicts=pidalio-node@*.service
-              - path: /opt/pidalio-node@.service
-                permissions: 0700
-                owner: "root:root"
-                content: |
-                  [Unit]
-                  Description=Pidalio Node Service
-                  After=weave-network.target etcd2.service
-                  Requires=weave-network.target etcd2.service
-                  [Service]
-                  Restart=always
-                  RestartSec=10
-                  EnvironmentFile=/etc/pidalio.env
-                  Environment=MASTER=false
-                  ExecStart=/opt/pidalio/start.sh
-                  ExecStop=/opt/pidalio/stop.sh
-                  [X-Fleet]
-                  MachineMetadata=region=$os_region$
-                  Conflicts=pidalio-master@*.service
-                  Conflicts=pidalio-node@*.service
             coreos:
               fleet:
                   public-ip: "$public_ipv4$"

@@ -1,0 +1,29 @@
+[Unit]
+Description=Pidalio Master Controller Service
+After=weave-network.target fleet.service
+Requires=weave-network.target fleet.service
+[Service]
+Restart=always
+RestartSec=10
+EnvironmentFile=/etc/pidalio.env
+Environment=MASTER=true
+Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
+ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
+ExecStart=/usr/bin/docker run \
+    --volume /etc/kubernetes:/etc/kubernetes \
+    --volume /usr/share/ca-certificates:/etc/ssl/certs \
+    --rm \
+    --name=pidalio-controller \
+    quay.io/coreos/hyperkube:v1.3.7_coreos.0 \
+    /hyperkube \
+    controller-manager \
+    --master=https://pidalio-apiserver \
+    --leader-elect=true \
+    --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
+    --service-account-private-key-file=/etc/kubernetes/ssl/server-key.pem \
+    --pod-eviction-timeout=30s \
+    --root-ca-file=/etc/kubernetes/ssl/ca.pem
+ExecStop=/usr/bin/docker rm -f pidalio-controller
+[X-Fleet]
+MachineMetadata=region=$os_region$
+Conflicts=pidalio-controller@*.service

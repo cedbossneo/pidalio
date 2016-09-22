@@ -1,0 +1,17 @@
+[Unit]
+Description=Pidalio Service
+After=weave-network.target
+After=fleet.service
+Requires=weave-network.target
+Requires=fleet.service
+[Service]
+Restart=always
+RestartSec=10
+Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
+ExecStartPre=/usr/bin/docker pull cedbossneo/pidalio
+ExecStartPre=/usr/bin/etcdctl cluster-health
+ExecStart=/usr/bin/docker run --name=pidalio \
+  -e TOKEN=$token$ \
+  -e ETCD_URI=http://$private_ipv4$:2379 \
+  cedbossneo/pidalio
+ExecStop=/usr/bin/docker rm -f pidalio

@@ -1,45 +1,19 @@
 #!/usr/bin/env bash
-if [[ "${MASTER}" == "true" ]]
-then
-  (
-    until curl -m 5 http://localhost:8080/healthz
-    do
-        echo "Waiting for master to be ready"
-        sleep 10
-    done
-    # Initialize Kubernetes Addons
-    /opt/bin/kubectl create -f /etc/kubernetes/descriptors
-    # Initialize Ceph
-    # /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
-  ) &
-  /opt/bin/kubelet \
-    --network-plugin=cni \
-    --network-plugin-dir=/etc/cni/net.d \
-    --api-servers=http://127.0.0.1:8080 \
-    --register-schedulable=false \
-    --register-node=true \
-    --allow-privileged=true \
-    --node-ip=${NODE_IP} \
-    --config=/etc/kubernetes/manifests \
-    --hostname-override=${NODE_PUBLIC_IP} \
-    --cluster-dns=10.244.0.3 \
-    --cluster-domain=${DOMAIN} \
-    --tls-cert-file=/etc/kubernetes/ssl/node.pem \
-    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
-    --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
-    @*
-else
-  PIDALIO_URL=http://$(/opt/bin/weave dns-lookup pidalio):3000
-  MASTERS_URLS=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | tr '\n' ',')
-  MASTER_URL=$(curl -s ${PIDALIO_URL}/k8s/masters\?token\=${PIDALIO_TOKEN} | jq -r .urls[] | head -n 1)
-  echo Masters: ${MASTERS_URLS}
-  mkdir -p /home/core/.kube
-  cat <<EOF > /home/core/.kube/config
+MASTERS_URLS=""
+MASTER_URL=""
+for master in $(/opt/bin/weave dns-lookup pidalio-apiserver)
+do
+    MASTER_URL=https://${master}
+    MASTERS_URLS=${MASTERS_URLS},${MASTER_URL}
+done
+echo Masters: ${MASTERS}
+mkdir -p /home/core/.kube
+cat <<EOF > /home/core/.kube/config
 apiVersion: v1
 clusters:
 - cluster:
     certificate-authority: /etc/kubernetes/ssl/ca.pem
-    server: ${MASTER_URL}
+    server: $MASTER_URL
   name: local
 contexts:
 - context:
@@ -55,8 +29,8 @@ users:
     client-certificate: /etc/kubernetes/ssl/node.pem
     client-key: /etc/kubernetes/ssl/node-key.pem
 EOF
-  chown -R core:core /home/core/.kube
-  /opt/bin/kubelet \
+chown -R core:core /home/core/.kube
+/opt/bin/kubelet \
     --network-plugin=cni \
     --network-plugin-dir=/etc/cni/net.d \
     --api-servers=${MASTERS_URLS} \
@@ -72,4 +46,3 @@ EOF
     --tls-cert-file=/etc/kubernetes/ssl/node.pem \
     --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
     @*
-fi
