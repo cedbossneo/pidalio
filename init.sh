@@ -14,6 +14,7 @@ else
     curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.7/bin/linux/amd64/kubectl
     chmod +x /opt/bin/kubectl
 fi
+/opt/pidalio/kube/kubelet/scripts/prepare-units.sh
 #/opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
 docker pull cedbossneo/etcd-cluster-on-docker
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
