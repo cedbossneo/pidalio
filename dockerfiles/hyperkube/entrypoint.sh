@@ -8,4 +8,4 @@ then
       cat server.json | jq -r .cert > /etc/kubernetes/ssl/server.pem
     fi
 fi
-exec "@*"
+exec "$@"
