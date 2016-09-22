@@ -14,11 +14,11 @@ else
     curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.7/bin/linux/amd64/kubectl
     chmod +x /opt/bin/kubectl
 fi
+source /etc/pidalio.env
 /opt/pidalio/kube/kubelet/scripts/prepare-units.sh
 #/opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
 docker pull cedbossneo/etcd-cluster-on-docker
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
-source /etc/pidalio.env
 SLEEP_TIME=$(expr $RANDOM % 30)
 echo "Sleeping $SLEEP_TIME seconds"
 sleep ${SLEEP_TIME}
