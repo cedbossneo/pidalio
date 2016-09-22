@@ -6,6 +6,7 @@ do
     sleep 10
     i=$(expr $i + 1)
 done
+if [[ $i == 10 ]]; then exit 1; fi
 # Initialize Kubernetes Addons
 /opt/bin/kubectl create -f /etc/kubernetes/descriptors
 # Initialize Ceph
