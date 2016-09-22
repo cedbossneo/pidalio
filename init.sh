@@ -15,16 +15,6 @@ else
     chmod +x /opt/bin/kubectl
 fi
 source /etc/pidalio.env
-#Fix DNS
-DNS_IP=$(/opt/bin/weave report | jq -r .DNS.Address|cut -d':' -f 1)
-cat <<EOF > /etc/systemd/network/00-en.network
-[Match]
-Name=en*
-[Network]
-DNS=$DNS_IP
-DNS=$DNS_UPSTREAM
-EOF
-/usr/bin/systemctl restart systemd-networkd
 /opt/pidalio/kube/kubelet/scripts/prepare-units.sh
 #/opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
 docker pull cedbossneo/etcd-cluster-on-docker

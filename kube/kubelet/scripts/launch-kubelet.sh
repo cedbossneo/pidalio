@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
+MASTERS_URLS=""
+MASTER_URL=""
+for master in $(/opt/bin/weave dns-lookup pidalio-apiserver)
+do
+    MASTER_URL=https://${master}
+done
 mkdir -p /home/core/.kube
 cat <<EOF > /home/core/.kube/config
 apiVersion: v1
 clusters:
 - cluster:
     certificate-authority: /etc/kubernetes/ssl/ca.pem
-    server: https://pidalio-apiserver
+    server: $MASTER_URL
   name: local
 contexts:
 - context:
@@ -22,10 +28,17 @@ users:
     client-key: /etc/kubernetes/ssl/node-key.pem
 EOF
 chown -R core:core /home/core/.kube
+(
+    while [ "$(curl -s -m 5 $MASTER_URL/healthz)" == "ok" ]
+    do
+        sleep 10
+    done
+    pkill kubelet
+) &
 /opt/bin/kubelet \
     --network-plugin=cni \
     --network-plugin-dir=/etc/cni/net.d \
-    --api-servers=https://piadalio-apiserver \
+    --api-servers=${MASTER_URL} \
     --register-node=true \
     --node-labels=mode=SchedulingDisabled,type=${NODE_TYPE} \
     --allow-privileged=true \
