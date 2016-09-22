@@ -20,6 +20,7 @@ cat <<EOF > /etc/systemd/network/00-en.network
 [Match]
 Name=en*
 [Network]
+DNS=$DNS_UPSTREAM
 DNS=$DNS_IP
 EOF
 /usr/bin/systemctl restart systemd-networkd
