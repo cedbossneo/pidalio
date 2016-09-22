@@ -14,6 +14,15 @@ else
     curl -o /opt/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.7/bin/linux/amd64/kubectl
     chmod +x /opt/bin/kubectl
 fi
+#Fix DNS
+DNS_IP=$(/opt/bin/weave report | jq -r .DNS.Address|cut -d':' -f 1)
+cat <<EOF > /etc/systemd/network/00-en.network
+[Match]
+Name=en*
+[Network]
+DNS=$DNS_IP
+EOF
+/usr/bin/systemctl restart systemd-networkd
 /opt/pidalio/kube/kubelet/scripts/prepare-units.sh
 #/opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
 source /etc/pidalio.env
