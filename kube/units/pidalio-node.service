@@ -11,5 +11,4 @@ ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStart=/opt/pidalio/kube/kubelet/scripts/launch-kubelet.sh
 ExecStop=/usr/bin/pkill kubelet
 [X-Fleet]
-MachineMetadata=region=$region$
 Global=True
