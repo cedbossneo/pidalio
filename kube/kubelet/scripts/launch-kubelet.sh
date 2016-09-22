@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
 MASTERS_URLS=""
 MASTER_URL=""
+until [[ "$(/opt/bin/weave dns-lookup pidalio-apiserver | wc -l)" == "1" ]]
+do
+    echo "Waiting for master"
+    sleep 10
+done
 for master in $(/opt/bin/weave dns-lookup pidalio-apiserver)
 do
     MASTER_URL=https://${master}
+done
+until [[ "$(curl -s -m 5 $MASTER_URL/healthz)" == "ok" ]]
+do
+    echo "Waiting for master to be healthy"
+    sleep 10
 done
 mkdir -p /home/core/.kube
 cat <<EOF > /home/core/.kube/config
@@ -29,7 +39,7 @@ users:
 EOF
 chown -R core:core /home/core/.kube
 (
-    while [ "$(curl -s -m 5 $MASTER_URL/healthz)" == "ok" ]
+    while [[ "$(curl -s -m 5 $MASTER_URL/healthz)" == "ok" ]]
     do
         sleep 10
     done
