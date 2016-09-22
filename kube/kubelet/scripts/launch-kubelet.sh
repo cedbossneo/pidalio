@@ -10,11 +10,14 @@ for master in $(/opt/bin/weave dns-lookup pidalio-apiserver)
 do
     MASTER_URL=https://${master}
 done
-until [[ "$(curl -s -m 5 $MASTER_URL/healthz)" == "ok" ]]
+i=0
+until [[ "$(curl -s -m 5 $MASTER_URL/healthz)" == "ok" && $i == 5 ]]
 do
     echo "Waiting for master to be healthy"
+    i=$(expr $i + 1)
     sleep 10
 done
+if [[ $i == 5 ]]; then exit 1; fi
 mkdir -p /home/core/.kube
 cat <<EOF > /home/core/.kube/config
 apiVersion: v1
