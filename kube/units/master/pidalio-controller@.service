@@ -10,8 +10,8 @@ Environment=MASTER=true
 Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStart=/usr/bin/docker run \
-    -e PIDALIO_TOKEN=$PIDALIO_TOKEN \
-    -e MASTER=$MASTER \
+    -e PIDALIO_TOKEN=$token$ \
+    -e MASTER=true \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --rm \
