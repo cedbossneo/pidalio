@@ -4,9 +4,7 @@ MASTER_URL=""
 for master in $(/opt/bin/weave dns-lookup pidalio-apiserver)
 do
     MASTER_URL=https://${master}
-    MASTERS_URLS=${MASTERS_URLS},${MASTER_URL}
 done
-echo Masters: ${MASTERS}
 mkdir -p /home/core/.kube
 cat <<EOF > /home/core/.kube/config
 apiVersion: v1
@@ -33,7 +31,7 @@ chown -R core:core /home/core/.kube
 /opt/bin/kubelet \
     --network-plugin=cni \
     --network-plugin-dir=/etc/cni/net.d \
-    --api-servers=${MASTERS_URLS} \
+    --api-servers=${MASTER_URL} \
     --register-node=true \
     --node-labels=mode=SchedulingDisabled,type=${NODE_TYPE} \
     --allow-privileged=true \
