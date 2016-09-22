@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-until curl -m 5 http://localhost:8080/healthz
+i=0
+until curl -m 5 http://localhost:8080/healthz && [[ $i == 10 ]]
 do
     echo "Waiting for master to be ready"
     sleep 10
+    i=$(expr $i + 1)
 done
 # Initialize Kubernetes Addons
 /opt/bin/kubectl create -f /etc/kubernetes/descriptors
