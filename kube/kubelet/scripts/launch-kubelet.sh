@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
-MASTERS_URLS=""
-MASTER_URL=""
-for master in $(/opt/bin/weave dns-lookup pidalio-apiserver)
-do
-    MASTER_URL=https://${master}
-done
 mkdir -p /home/core/.kube
 cat <<EOF > /home/core/.kube/config
 apiVersion: v1
 clusters:
 - cluster:
     certificate-authority: /etc/kubernetes/ssl/ca.pem
-    server: $MASTER_URL
+    server: https://pidalio-apiserver
   name: local
 contexts:
 - context:
@@ -31,7 +25,7 @@ chown -R core:core /home/core/.kube
 /opt/bin/kubelet \
     --network-plugin=cni \
     --network-plugin-dir=/etc/cni/net.d \
-    --api-servers=${MASTER_URL} \
+    --api-servers=https://piadalio-apiserver \
     --register-node=true \
     --node-labels=mode=SchedulingDisabled,type=${NODE_TYPE} \
     --allow-privileged=true \

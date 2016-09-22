@@ -202,6 +202,13 @@ resources:
                     Type=bridge
                     Name=weave*
                     [Network]
+                - name: 00-ens.network
+                  runtime: true
+                  content: |
+                    [Match]
+                    Name=en*
+                    [Network]
+                    DNS=172.17.0.1
                 - name: install-weave.service
                   enable: true
                   content: |
