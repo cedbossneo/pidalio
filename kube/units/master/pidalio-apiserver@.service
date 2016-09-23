@@ -12,6 +12,7 @@ ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/prepare-yaml.sh
 ExecStart=/usr/bin/docker run \
     -e PIDALIO_TOKEN=$token$ \
+    -e REGION=%i \
     -e MASTER=true \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \

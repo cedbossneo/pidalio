@@ -48,7 +48,12 @@ func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 			c.AbortWithError(http.StatusBadRequest, errors.New("ip not defined"))
 			return
 		}
-		cert, private, public, err := ssl.CreateServerCertificate(rootCerts, ip)
+		fqdn, exist := c.GetQuery("fqdn")
+		if !exist {
+			c.AbortWithError(http.StatusBadRequest, errors.New("fqdn not defined"))
+			return
+		}
+		cert, private, public, err := ssl.CreateServerCertificate(rootCerts, ip, fqdn)
 		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
 			"cert": string(cert),
