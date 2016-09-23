@@ -50,8 +50,7 @@ chown -R core:core /home/core/.kube
     pkill kubelet
 ) &
 /opt/bin/kubelet \
-    --network-plugin=cni \
-    --network-plugin-dir=/etc/cni/net.d \
+    --docker-endpoint=unix:///var/run/weave/weave.sock \
     --api-servers=${MASTER_URL} \
     --register-node=true \
     --node-labels=type=${NODE_TYPE} \

@@ -211,9 +211,7 @@ resources:
                     Type=oneshot
                     RemainAfterExit=yes
                     TimeoutStartSec=5m
-                    ExecStartPre=/bin/mkdir -p /opt/bin/ /opt/cni/bin /etc/cni/net.d
-                    ExecStartPre=-/usr/bin/wget -O /tmp/cni.tgz https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.tgz
-                    ExecStartPre=-/usr/bin/tar -xvzf /tmp/cni.tgz -C /opt/cni/bin/
+                    ExecStartPre=/bin/mkdir -p /opt/bin/
                     ExecStartPre=/usr/bin/curl \
                       --silent \
                       --location \
