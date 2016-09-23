@@ -53,7 +53,7 @@ chown -R core:core /home/core/.kube
     --network-plugin-dir=/etc/cni/net.d \
     --api-servers=${MASTER_URL} \
     --register-node=true \
-    --node-labels=mode=SchedulingDisabled,type=${NODE_TYPE} \
+    --node-labels=type=${NODE_TYPE} \
     --allow-privileged=true \
     --node-ip=${NODE_IP} \
     --config=/etc/kubernetes/manifests \
