@@ -15,7 +15,7 @@ ExecStart=/usr/bin/docker run \
     --name=pidalio-scheduler \
     cedbossneo/hyperkube:v1.3.7 \
     /hyperkube \
-    controller-manager \
+    scheduler \
     --master=https://pidalio-apiserver \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml
 ExecStop=/usr/bin/docker rm -f pidalio-scheduler

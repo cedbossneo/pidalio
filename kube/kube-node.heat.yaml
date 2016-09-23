@@ -132,7 +132,6 @@ resources:
                 owner: "root:root"
                 content: |
                   #!/bin/bash
-                  set -xe
                   while true; do
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-apiserver.service
