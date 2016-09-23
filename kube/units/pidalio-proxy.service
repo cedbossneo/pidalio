@@ -6,21 +6,9 @@ Requires=weave-network.target fleet.service
 Restart=always
 RestartSec=10
 EnvironmentFile=/etc/pidalio.env
-Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
+Environment=MASTER=false
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
-ExecStart=/usr/bin/docker run \
-    --volume /etc/kubernetes:/etc/kubernetes \
-    --volume /usr/share/ca-certificates:/etc/ssl/certs \
-    --rm \
-    --net=host \
-    --name=pidalio-proxy \
-    cedbossneo/hyperkube:v1.3.7 \
-    /hyperkube \
-    proxy \
-    --master=https://pidalio-apiserver \
-    --hostname-override=${NODE_PUBLIC_IP} \
-    --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
-    --proxy-mode=iptables
-ExecStop=/usr/bin/docker rm -f pidalio-proxy
+ExecStart=/opt/pidalio/kube/kubelet/scripts/launch-proxy.sh
+ExecStop=/usr/bin/pkill kube-proxy
 [X-Fleet]
 Global=True
