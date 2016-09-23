@@ -17,6 +17,7 @@ ExecStart=/usr/bin/docker run \
     /hyperkube \
     proxy \
     --master=https://pidalio-apiserver \
+    --hostname-override=${NODE_PUBLIC_IP} \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     --proxy-mode=iptables
 ExecStop=/usr/bin/docker rm -f pidalio-proxy
