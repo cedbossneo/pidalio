@@ -135,11 +135,11 @@ resources:
                   set -xe
                   while true; do
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio.service
-                    /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-proxy.service
-                    /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-node.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-apiserver.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-controller.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-scheduler.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-proxy.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-node.service
                     sleep 60
                   done
             coreos:

@@ -30,4 +30,3 @@ if [[ $i == 5 ]]; then exit 1; fi
     --hostname-override=${NODE_PUBLIC_IP} \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     --proxy-mode=iptables
-    @*

@@ -62,5 +62,4 @@ chown -R core:core /home/core/.kube
     --cluster-domain=${DOMAIN} \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     --tls-cert-file=/etc/kubernetes/ssl/node.pem \
-    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem \
-    @*
+    --tls-private-key-file=/etc/kubernetes/ssl/node-key.pem
