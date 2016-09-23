@@ -26,7 +26,7 @@ if [[ $i == 5 ]]; then exit 1; fi
     pkill kube-proxy
 ) &
 /opt/bin/kube-proxy \
-    --master=https://${MASTER_URL} \
+    --master=${MASTER_URL} \
     --hostname-override=${NODE_PUBLIC_IP} \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     --proxy-mode=iptables
