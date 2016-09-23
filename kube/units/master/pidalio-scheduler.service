@@ -1,0 +1,23 @@
+[Unit]
+Description=Pidalio Master Scheduler Service
+After=weave-network.target fleet.service
+Requires=weave-network.target fleet.service
+[Service]
+Restart=always
+RestartSec=10
+EnvironmentFile=/etc/pidalio.env
+Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
+ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
+ExecStart=/usr/bin/docker run \
+    --volume /etc/kubernetes:/etc/kubernetes \
+    --volume /usr/share/ca-certificates:/etc/ssl/certs \
+    --rm \
+    --name=pidalio-scheduler \
+    cedbossneo/hyperkube:v1.3.7 \
+    /hyperkube \
+    controller-manager \
+    --master=https://pidalio-apiserver \
+    --kubeconfig=/etc/kubernetes/kubeconfig.yaml
+ExecStop=/usr/bin/docker rm -f pidalio-scheduler
+[X-Fleet]
+Conflicts=pidalio-scheduler.service

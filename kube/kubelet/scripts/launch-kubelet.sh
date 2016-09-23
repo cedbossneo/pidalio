@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 MASTERS_URLS=""
 MASTER_URL=""
-until [[ "$(/opt/bin/weave dns-lookup pidalio-apiserver-$REGION | wc -l)" == "1" ]]
+until [[ "$(/opt/bin/weave dns-lookup pidalio-apiserver | wc -l)" == "1" ]]
 do
     echo "Waiting for master"
     sleep 10
 done
-for master in $(/opt/bin/weave dns-lookup pidalio-apiserver-${REGION})
+for master in $(/opt/bin/weave dns-lookup pidalio-apiserver)
 do
     MASTER_URL=https://${master}
 done

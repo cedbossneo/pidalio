@@ -113,7 +113,6 @@ resources:
                   NODE_IP=$private_ipv4$
                   NODE_PUBLIC_IP=$public_ipv4$
                   NODE_TYPE=cloudwatt
-                  REGION=$os_region$
                   ETCD_NODES=3
                   PEER=$peer$
                   PIDALIO_TOKEN=$token$
@@ -138,9 +137,9 @@ resources:
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-proxy.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-node.service
-                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-apiserver@$os_region$.service
-                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-controller@$os_region$.service
-                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-scheduler@$os_region$.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-apiserver.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-controller.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-scheduler.service
                     sleep 60
                   done
             coreos:

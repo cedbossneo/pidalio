@@ -1,25 +1,29 @@
 [Unit]
-Description=Pidalio Master Scheduler Service
+Description=Pidalio Master Controller Service
 After=weave-network.target fleet.service
 Requires=weave-network.target fleet.service
 [Service]
 Restart=always
 RestartSec=10
 EnvironmentFile=/etc/pidalio.env
+Environment=MASTER=true
 Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStart=/usr/bin/docker run \
+    -e PIDALIO_TOKEN=$token$ \
+    -e MASTER=true \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --rm \
-    --name=pidalio-scheduler-%i \
+    --name=pidalio-controller \
     cedbossneo/hyperkube:v1.3.7 \
     /hyperkube \
     controller-manager \
-    --master=https://pidalio-apiserver-%i \
-    --leader-elect=true \
-    --kubeconfig=/etc/kubernetes/kubeconfig.yaml
-ExecStop=/usr/bin/docker rm -f pidalio-scheduler
+    --master=https://pidalio-apiserver \
+    --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
+    --service-account-private-key-file=/etc/kubernetes/ssl/server-key.pem \
+    --pod-eviction-timeout=30s \
+    --root-ca-file=/etc/kubernetes/ssl/ca.pem
+ExecStop=/usr/bin/docker rm -f pidalio-controller
 [X-Fleet]
-MachineMetadata=region=$region$
-Conflicts=pidalio-scheduler@*.service
+Conflicts=pidalio-controller.service

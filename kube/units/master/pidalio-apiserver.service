@@ -12,14 +12,13 @@ ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/prepare-yaml.sh
 ExecStart=/usr/bin/docker run \
     -e PIDALIO_TOKEN=$token$ \
-    -e REGION=%i \
     -e MASTER=true \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --publish 8080:8080 \
     --publish 443:443 \
     --rm \
-    --name=pidalio-apiserver-%i \
+    --name=pidalio-apiserver \
     cedbossneo/hyperkube:v1.3.7 \
     /hyperkube \
     apiserver \
@@ -36,7 +35,6 @@ ExecStart=/usr/bin/docker run \
     --client-ca-file=/etc/kubernetes/ssl/ca.pem \
     --service-account-key-file=/etc/kubernetes/ssl/server-key.pem
 ExecStartPost=/opt/pidalio/kube/kubelet/scripts/create-descriptors.sh
-ExecStop=/usr/bin/docker rm -f pidalio-apiserver-%i
+ExecStop=/usr/bin/docker rm -f pidalio-apiserver
 [X-Fleet]
-MachineMetadata=region=$region$
-Conflicts=pidalio-apiserver@*.service
+Conflicts=pidalio-apiserver.service
