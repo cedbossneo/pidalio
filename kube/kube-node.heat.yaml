@@ -235,10 +235,29 @@ resources:
                     [Service]
                     TimeoutStartSec=5m
                     EnvironmentFile=-/etc/weave.env
-                    ExecStartPre=/opt/bin/weave launch $WEAVE_PEERS
+                    ExecStartPre=/opt/bin/weave launch-router $WEAVE_PEERS
                     ExecStart=/usr/bin/docker attach weave
                     Restart=on-failure
                     ExecStop=/opt/bin/weave stop-router
+                    [Install]
+                    WantedBy=weave-network.target
+                - name: weaveproxy.service
+                  enable: true
+                  content: |
+                    [Unit]
+                    After=install-weave.service
+                    After=docker.service
+                    Description=Weave Network Proxy
+                    Documentation=http://weave.works/docs
+                    Requires=docker.service
+                    Requires=install-weave.service
+                    [Service]
+                    TimeoutStartSec=5m
+                    EnvironmentFile=-/etc/weave.env
+                    ExecStartPre=/opt/bin/weave launch-proxy $WEAVEPROXY_ARGS
+                    ExecStart=/usr/bin/docker attach weaveproxy
+                    Restart=on-failure
+                    ExecStop=/opt/bin/weave stop-proxy
                     [Install]
                     WantedBy=weave-network.target
                 - name: pidalio-launch.service

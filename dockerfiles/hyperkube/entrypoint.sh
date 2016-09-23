@@ -22,5 +22,7 @@ then
     echo "APIServer not healthy, exiting"
     pkill hyperkube
 ) &
-fi
 exec "$@"
+else
+exec "$@" --advertise-address=${MASTER_IP}
+fi
