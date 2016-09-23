@@ -12,11 +12,11 @@ ExecStart=/usr/bin/docker run \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --rm \
-    --name=pidalio-scheduler \
+    --name=pidalio-scheduler-%i \
     cedbossneo/hyperkube:v1.3.7 \
     /hyperkube \
     controller-manager \
-    --master=https://pidalio-apiserver \
+    --master=https://pidalio-apiserver-%i \
     --leader-elect=true \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml
 ExecStop=/usr/bin/docker rm -f pidalio-scheduler

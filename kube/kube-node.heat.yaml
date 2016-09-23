@@ -138,12 +138,9 @@ resources:
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-proxy.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-node.service
-                    for i in $(seq 1 $master_count$)
-                    do
-                      /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-apiserver@$os_region$-$i.service
-                      /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-controller@$os_region$-$i.service
-                      /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-scheduler@$os_region$-$i.service
-                    done
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-apiserver@$os_region$.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-controller@$os_region$.service
+                    /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-scheduler@$os_region$.service
                     sleep 60
                   done
             coreos:

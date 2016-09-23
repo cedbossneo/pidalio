@@ -15,11 +15,11 @@ ExecStart=/usr/bin/docker run \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --rm \
-    --name=pidalio-controller \
+    --name=pidalio-controller-%i \
     cedbossneo/hyperkube:v1.3.7 \
     /hyperkube \
     controller-manager \
-    --master=https://pidalio-apiserver \
+    --master=https://pidalio-apiserver-%i \
     --leader-elect=true \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     --service-account-private-key-file=/etc/kubernetes/ssl/server-key.pem \

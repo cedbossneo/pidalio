@@ -18,7 +18,7 @@ ExecStart=/usr/bin/docker run \
     --publish 8080:8080 \
     --publish 443:443 \
     --rm \
-    --name=pidalio-apiserver \
+    --name=pidalio-apiserver-%i \
     cedbossneo/hyperkube:v1.3.7 \
     /hyperkube \
     apiserver \
@@ -35,7 +35,7 @@ ExecStart=/usr/bin/docker run \
     --client-ca-file=/etc/kubernetes/ssl/ca.pem \
     --service-account-key-file=/etc/kubernetes/ssl/server-key.pem
 ExecStartPost=/opt/pidalio/kube/kubelet/scripts/create-descriptors.sh
-ExecStop=/usr/bin/docker rm -f pidalio-apiserver
+ExecStop=/usr/bin/docker rm -f pidalio-apiserver-%i
 [X-Fleet]
 MachineMetadata=region=$region$
 Conflicts=pidalio-apiserver@*.service
