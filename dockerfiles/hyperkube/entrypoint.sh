@@ -19,6 +19,7 @@ then
     do
         sleep 10
     done
+    echo "APIServer not healthy, exiting"
     pkill hyperkube
 ) &
 fi

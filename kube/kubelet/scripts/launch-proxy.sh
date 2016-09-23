@@ -23,6 +23,7 @@ if [[ $i == 5 ]]; then exit 1; fi
     do
         sleep 10
     done
+    echo "APIServer not healthy, exiting"
     pkill kube-proxy
 ) &
 /opt/bin/kube-proxy \

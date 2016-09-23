@@ -46,6 +46,7 @@ chown -R core:core /home/core/.kube
     do
         sleep 10
     done
+    echo "APIServer not healthy, exiting"
     pkill kubelet
 ) &
 /opt/bin/kubelet \
