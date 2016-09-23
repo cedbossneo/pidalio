@@ -57,7 +57,6 @@ chown -R core:core /home/core/.kube
     --node-labels=type=${NODE_TYPE} \
     --allow-privileged=true \
     --node-ip=${NODE_IP} \
-    --config=/etc/kubernetes/manifests \
     --hostname-override=${NODE_PUBLIC_IP} \
     --cluster-dns=10.244.0.3 \
     --cluster-domain=${DOMAIN} \
