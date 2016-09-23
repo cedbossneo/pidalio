@@ -11,7 +11,7 @@ do
     MASTER_URL=https://${master}
 done
 i=0
-until [[ "$(curl -s -m 5 -k --cert /etc/kubernetes/ssl/node.pem --key /etc/kubernetes/ssl/node-key.pem $MASTER_URL/healthz)" == "ok" && $i != 5 ]]
+until [[ "$(curl -s -m 5 -k --cert /etc/kubernetes/ssl/node.pem --key /etc/kubernetes/ssl/node-key.pem $MASTER_URL/healthz)" == "ok" || $i == 5 ]]
 do
     echo "Waiting for master to be healthy"
     i=$(expr $i + 1)
