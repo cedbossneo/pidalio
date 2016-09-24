@@ -44,7 +44,7 @@ chown -R core:core /home/core/.kube
 (
     for i in {1..3}
     do
-        while [[ "$(curl -s -m 5 -k --cert /etc/kubernetes/ssl/node.pem --key /etc/kubernetes/ssl/node-key.pem $MASTER_URL/healthz)" == "ok" ]]
+        while [[ "$(curl -s -m 10 -k --cert /etc/kubernetes/ssl/node.pem --key /etc/kubernetes/ssl/node-key.pem $MASTER_URL/healthz)" == "ok" ]]
         do
             sleep 10
         done
