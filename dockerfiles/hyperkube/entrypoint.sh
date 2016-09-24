@@ -15,9 +15,13 @@ if [[ "$2" != "apiserver" ]]
 then
 (
     sleep 30
-    while [[ "$(curl -s -m 5 -k --cert /etc/kubernetes/ssl/node.pem --key /etc/kubernetes/ssl/node-key.pem https://$MASTER_IP/healthz)" == "ok" ]]
+    for i in {1..3}
     do
-        sleep 10
+        while [[ "$(curl -s -m 5 -k --cert /etc/kubernetes/ssl/node.pem --key /etc/kubernetes/ssl/node-key.pem https://$MASTER_IP/healthz)" == "ok" ]]
+        do
+            sleep 10
+        done
+        echo "APIServer not healthy, try $i/3"
     done
     echo "APIServer not healthy, exiting"
     pkill hyperkube

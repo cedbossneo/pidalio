@@ -19,9 +19,13 @@ do
 done
 if [[ $i == 5 ]]; then exit 1; fi
 (
-    while [[ "$(curl -s -m 5 -k --cert /etc/kubernetes/ssl/node.pem --key /etc/kubernetes/ssl/node-key.pem $MASTER_URL/healthz)" == "ok" ]]
+    for i in {1..3}
     do
-        sleep 10
+        while [[ "$(curl -s -m 5 -k --cert /etc/kubernetes/ssl/node.pem --key /etc/kubernetes/ssl/node-key.pem $MASTER_URL/healthz)" == "ok" ]]
+        do
+            sleep 10
+        done
+        echo "APIServer not healthy, try $i/3"
     done
     echo "APIServer not healthy, exiting"
     pkill kube-proxy
