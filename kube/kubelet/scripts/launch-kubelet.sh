@@ -24,7 +24,7 @@ EOF
 chown -R core:core /home/core/.kube
 /opt/bin/kubelet \
     --docker-endpoint=unix:///var/run/weave/weave.sock \
-    --api-servers=https://10.10.1.1 \
+    --api-servers=https://10.42.1.1 \
     --register-node=true \
     --node-labels=type=${NODE_TYPE} \
     --allow-privileged=true \

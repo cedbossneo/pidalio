@@ -18,7 +18,7 @@ if [ ! -e /etc/kubernetes/ssl/ca.pem ]; then
 fi
 if [[ "${MASTER}" == "true" ]]
 then
-  curl -s ${PIDALIO_URL}/certs/server\?token\=${PIDALIO_TOKEN}\&ip=10.10.1.1 > server.json
+  curl -s ${PIDALIO_URL}/certs/server\?token\=${PIDALIO_TOKEN}\&ip=10.42.1.1 > server.json
   cat server.json | jq -r .privateKey > /etc/kubernetes/ssl/server-key.pem
   cat server.json | jq -r .cert > /etc/kubernetes/ssl/server.pem
 fi

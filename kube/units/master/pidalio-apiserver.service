@@ -11,7 +11,7 @@ Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/prepare-yaml.sh
 ExecStart=/usr/bin/docker run \
-    -e WEAVE_CIDR=10.10.1.1/24 \
+    -e WEAVE_CIDR=10.42.1.1/24 \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --publish 8080:8080 \
@@ -33,7 +33,7 @@ ExecStart=/usr/bin/docker run \
     --tls-private-key-file=/etc/kubernetes/ssl/server-key.pem \
     --client-ca-file=/etc/kubernetes/ssl/ca.pem \
     --service-account-key-file=/etc/kubernetes/ssl/server-key.pem \
-    --advertise-address=10.10.1.1
+    --advertise-address=10.42.1.1
 ExecStartPost=/opt/pidalio/kube/kubelet/scripts/create-descriptors.sh
 ExecStop=/usr/bin/docker rm -f pidalio-apiserver
 [X-Fleet]
