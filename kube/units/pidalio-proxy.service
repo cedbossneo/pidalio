@@ -8,7 +8,11 @@ RestartSec=10
 EnvironmentFile=/etc/pidalio.env
 Environment=MASTER=false
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
-ExecStart=/opt/pidalio/kube/kubelet/scripts/launch-proxy.sh
+ExecStart=/opt/bin/kube-proxy \
+  --master=https://10.10.1.1 \
+  --hostname-override=${NODE_PUBLIC_IP} \
+  --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
+  --proxy-mode=iptables
 ExecStop=/usr/bin/pkill kube-proxy
 [X-Fleet]
 Global=True

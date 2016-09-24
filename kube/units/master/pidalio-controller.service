@@ -10,13 +10,11 @@ Environment=MASTER=true
 Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStart=/usr/bin/docker run \
-    -e PIDALIO_TOKEN=$token$ \
-    -e MASTER=true \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --rm \
     --name=pidalio-controller \
-    cedbossneo/hyperkube:v1.3.7 \
+    quay.io/coreos/hyperkube:v1.3.7_coreos.0 \
     /hyperkube \
     controller-manager \
     --master=https://pidalio-apiserver \
