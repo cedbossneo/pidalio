@@ -5,7 +5,7 @@ apiVersion: v1
 clusters:
 - cluster:
     certificate-authority: /etc/kubernetes/ssl/ca.pem
-    server: $MASTER_URL
+    server: https://10.42.1.1
   name: local
 contexts:
 - context:
