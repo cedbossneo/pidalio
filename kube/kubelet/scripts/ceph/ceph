@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/bin/docker run --rm -v /etc/ceph:/etc/ceph ceph/base ceph "$@"
+/usr/bin/docker run --net=host --rm -v /opt/pidalio/kube/kubelet/scripts/ceph/resolv.conf:/etc/resolv.conf:ro -v /opt/pidalio/kube/kubelet/scripts/ceph/keys/:/etc/ceph ceph/base ceph "$@"

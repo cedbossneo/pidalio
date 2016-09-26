@@ -79,7 +79,7 @@ parameters:
     type: string
 
   peer:
-    default: 10.3.1.10
+    default: 10.1.1.10
     label: Peer
     type: string
 
@@ -92,9 +92,9 @@ resources:
     properties:
       network_id: { get_resource: network }
       ip_version: 4
-      cidr: 10.3.0.0/16
+      cidr: 10.1.0.0/16
       allocation_pools:
-        - { start: 10.3.1.10, end: 10.3.1.200 }
+        - { start: 10.1.1.10, end: 10.1.1.200 }
 
   router:
     type: OS::Neutron::Router

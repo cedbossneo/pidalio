@@ -6,5 +6,3 @@ import:
   version: master
 - package: github.com/sgallagher/openssl
   version: master
-- package: github.com/YakLabs/k8s-client
-  version: master

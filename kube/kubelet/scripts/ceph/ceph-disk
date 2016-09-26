@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/bin/docker run --rm --privileged=true -v /etc/ceph:/etc/ceph -v /dev:/dev ceph/base ceph-disk "$@"
+/usr/bin/docker run --rm --net=host --privileged=true -v /opt/pidalio/kube/kubelet/scripts/ceph/resolv.conf:/etc/resolv.conf:ro -v /opt/pidalio/kube/kubelet/scripts/ceph/keys/:/etc/ceph -v /dev:/dev ceph/base ceph-disk "$@"

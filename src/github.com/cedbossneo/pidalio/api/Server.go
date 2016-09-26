@@ -4,7 +4,6 @@ import "github.com/cedbossneo/pidalio/ssl"
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"github.com/cedbossneo/pidalio/k8s"
 	"errors"
 	"github.com/cedbossneo/pidalio/etcd"
 )
@@ -17,7 +16,7 @@ func checkErrors(c *gin.Context, err error) bool {
 	return false
 }
 
-func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
+func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, etcdClient etcd.EtcdClient) {
 	r := gin.Default()
 	r.Use(func(c *gin.Context) {
 		if c.Query("token")[0:16] != rootCerts.Token {
@@ -43,17 +42,10 @@ func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 		})
 	})
 	r.GET("/certs/server", func(c *gin.Context) {
-		ip, exist := c.GetQuery("ip")
-		if !exist {
-			c.AbortWithError(http.StatusBadRequest, errors.New("ip not defined"))
-			return
-		}
-		cert, private, public, err := ssl.CreateServerCertificate(rootCerts, ip)
-		if checkErrors(c, err) { return }
 		c.JSON(200, gin.H{
-			"cert": string(cert),
-			"privateKey": string(private),
-			"publicKey": string(public),
+			"cert": string(serverCerts.Certificate),
+			"privateKey": string(serverCerts.PrivateKey),
+			"publicKey": string(serverCerts.PublicKey),
 		})
 	})
 	r.GET("/certs/node", func(c *gin.Context) {
@@ -74,42 +66,6 @@ func CreateAPIServer(rootCerts ssl.RootCerts, etcdClient etcd.EtcdClient) {
 			"privateKey": string(private),
 			"publicKey": string(public),
 		})
-	})
-
-	r.GET("/k8s/masters", func(c *gin.Context) {
-		MasterIPs, MasterURLs, err := k8s.FetchMastersIPs(etcdClient)
-		if checkErrors(c, err) { return }
-		c.JSON(200, gin.H{
-			"masters": MasterIPs,
-			"urls": MasterURLs,
-		})
-	})
-	r.POST("/register/node", func(c *gin.Context) {
-		nodeIp, exist := c.GetQuery("ip")
-		if !exist {
-			c.AbortWithError(http.StatusBadRequest, errors.New("ip not defined"))
-			return
-		}
-		nodeId, exist := c.GetQuery("id")
-		if !exist {
-			c.AbortWithError(http.StatusBadRequest, errors.New("id not defined"))
-			return
-		}
-		nodeArch, exist := c.GetQuery("arch")
-		if !exist {
-			c.AbortWithError(http.StatusBadRequest, errors.New("arch not defined"))
-			return
-		}
-		nodeOs, exist := c.GetQuery("os")
-		if !exist {
-			c.AbortWithError(http.StatusBadRequest, errors.New("os not defined"))
-			return
-		}
-		client, err := k8s.CreateK8SClient(rootCerts, etcdClient)
-		if checkErrors(c, err) { return }
-		newNode, err := k8s.RegisterNode(client, nodeId, nodeIp, nodeOs, nodeArch)
-		if checkErrors(c, err) { return }
-		c.JSON(200, newNode)
 	})
 	r.Run(":3000")
 }
