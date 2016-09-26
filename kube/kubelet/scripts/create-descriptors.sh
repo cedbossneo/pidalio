@@ -10,5 +10,5 @@ if [[ $i == 5 ]]; then exit 1; fi
 # Initialize Kubernetes Addons
 /opt/bin/kubectl create -f /etc/kubernetes/descriptors
 # Initialize Ceph
-# /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
+/opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
 exit 0

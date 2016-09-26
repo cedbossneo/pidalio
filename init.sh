@@ -3,7 +3,7 @@ set -e
 source /etc/pidalio.env
 /opt/pidalio/kube/kubelet/scripts/download-components.sh
 /opt/pidalio/kube/kubelet/scripts/prepare-units.sh
-#/opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
+/opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
 docker pull cedbossneo/etcd-cluster-on-docker
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
 SLEEP_TIME=$(expr $RANDOM % 30)
