@@ -21,7 +21,7 @@ echo "Select at least one instance of my region to be a storage node"
 STORAGE_NODE=""
 until [[ "$STORAGE_NODE" != "" ]]
 do
-    STORAGE_NODE=$(/opt/bin/kubectl get nodes -o json | /usr/bin/jq -r ".items[] | select(.metadata.labels.type==\"$REGION\") | select(.status.conditions[].type==\"Ready\") | select(.status.conditions[].status==\"True\") | select(.metadata.labels.storage!=\"true\") | .metadata.name" | head -n 1)
+    STORAGE_NODE=$(/opt/bin/kubectl get nodes -o json | /usr/bin/jq -r ".items[] | select(.metadata.labels.type==\"$NODE_TYPE\") | select(.status.conditions[].type==\"Ready\") | select(.status.conditions[].status==\"True\") | select(.metadata.labels.storage!=\"true\") | .metadata.name" | head -n 1)
     sleep 10
 done
 /opt/bin/kubectl label node $STORAGE_NODE storage=true
