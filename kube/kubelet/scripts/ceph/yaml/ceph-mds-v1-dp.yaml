@@ -17,8 +17,8 @@ spec:
         app: ceph
         daemon: mds
     spec:
-#      nodeSelector:
-#        node-type: storage
+      nodeSelector:
+        storage: true
       serviceAccount: default
       volumes:
         - name: ceph-conf

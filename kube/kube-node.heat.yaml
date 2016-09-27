@@ -10,32 +10,11 @@ parameters:
   floating_network:
     label: floating_network
     type: string
-  mastercount:
-    label: mastercount
-    type: number
-  nodecount:
-    label: nodecount
-    type: number
-  subnet:
-    label: subnet
-    type: string
-  os_username:
-    label: os_username
-    type: string
-  os_password:
-    label: os_password
-    type: string
-  os_tenant:
-    label: os_tenant
-    type: string
-  os_tenant_id:
-    label: os_tenant_id
-    type: string
-  os_auth:
-    label: os_auth
-    type: string
   os_region:
     label: os_region
+    type: string
+  ceph:
+    label: ceph
     type: string
   network:
     label: network
@@ -79,15 +58,8 @@ resources:
             $private_ipv4$: { get_attr: [ port, fixed_ips, 0, ip_address ] }
             $public_ipv4$: { get_attr: [ floating_ip, floating_ip_address] }
             $domain$: { get_param: domain }
-            $os_username$: { get_param: os_username}
-            $os_password$: { get_param: os_password}
-            $os_tenant$: { get_param: os_tenant }
-            $os_auth$: { get_param: os_auth }
             $os_region$: { get_param: os_region }
-            $os_project_id$: { get_param: 'OS::project_id' }
-            $node_count$: { get_param: nodecount }
-            $master_count$: { get_param: mastercount }
-            $subnet$: { get_param: subnet }
+            $ceph$: { get_param: ceph }
             $token$: { get_param: token }
             $peer$: { get_param: peer }
           template: |
@@ -112,7 +84,8 @@ resources:
                   NODE_FQDN=$NODE_FQDN
                   NODE_IP=$private_ipv4$
                   NODE_PUBLIC_IP=$public_ipv4$
-                  NODE_TYPE=cloudwatt
+                  NODE_TYPE=$os_region$
+                  CEPH=$ceph$
                   ETCD_NODES=3
                   PEER=$peer$
                   PIDALIO_TOKEN=$token$
