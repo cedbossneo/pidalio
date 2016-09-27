@@ -9,8 +9,6 @@ metadata:
   namespace: ceph
 spec:
   replicas: 1
-  nodeSelector:
-    storage: true
   template:
     metadata:
       name: ceph-mds
@@ -19,6 +17,8 @@ spec:
         app: ceph
         daemon: mds
     spec:
+      nodeSelector:
+        storage: "true"
       serviceAccount: default
       volumes:
         - name: ceph-conf
