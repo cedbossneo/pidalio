@@ -16,6 +16,7 @@ echo AQDP299XAAAAABAA9ut3smkroIdHsYCfqf5YWQ== > ceph-client-key
 /opt/bin/kubectl create secret generic ceph-bootstrap-mds-keyring --from-file=ceph.keyring=ceph.mds.keyring --namespace=ceph
 /opt/bin/kubectl create secret generic ceph-bootstrap-osd-keyring --from-file=ceph.keyring=ceph.osd.keyring --namespace=ceph
 /opt/bin/kubectl create secret generic ceph-client-key --from-file=ceph-client-key --namespace=ceph
+/opt/bin/kubectl create secret generic ceph-client-key --from-file=ceph-client-key
 /opt/bin/kubectl create \
 -f /opt/pidalio/kube/kubelet/scripts/ceph/yaml/ceph-mds-v1-dp.yaml \
 -f /opt/pidalio/kube/kubelet/scripts/ceph/yaml/ceph-mon-v1-svc.yaml \

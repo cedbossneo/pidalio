@@ -138,9 +138,9 @@ resources:
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-scheduler.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-proxy.service
                     /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-node.service
-                    for peer in $(/opt/bin/weave report | jq -r '.IPAM.Entries | unique_by(.Peer) | .[] | select(.IsKnownPeer==false) | .Peer')
+                    for peer in $(/opt/bin/weave report | /usr/bin/jq -r '.IPAM.Entries | unique_by(.Peer) | .[] | select(.IsKnownPeer==false) | .Peer')
                     do
-                      weave rmpeer $peer
+                      /opt/bin/weave rmpeer $peer
                     done
                     sleep 60
                   done
