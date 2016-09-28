@@ -72,6 +72,7 @@ resources:
                   #!/bin/bash
                   echo WEAVE_PEERS=\"$peer$\" > /etc/weave.env
                   echo WEAVEPROXY_ARGS=\"--rewrite-inspect\" >> /etc/weave.env
+                  echo WEAVE_PASSWORD=\"$token$\" >> /etc/weave.env
               - path: /opt/pidalio-init.sh
                 permissions: 0700
                 owner: "root:root"
