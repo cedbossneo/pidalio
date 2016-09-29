@@ -3,7 +3,7 @@ set -e
 source /etc/pidalio.env
 /opt/pidalio/kube/kubelet/scripts/download-components.sh
 /opt/pidalio/kube/kubelet/scripts/prepare-units.sh
-if [[ "${CEPH}" == "true" ]]
+if [[ "${CEPH}" == "1" ]]
 then
     /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
 fi

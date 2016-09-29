@@ -10,13 +10,13 @@ if [[ $i == 5 ]]; then exit 1; fi
 # Initialize Kubernetes Addons
 /opt/bin/kubectl create -f /etc/kubernetes/descriptors/dns
 # Initialize Ceph
-if [[ "${CEPH}" == "true" ]]
+if [[ "${CEPH}" == "1" ]]
 then
     /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
     /opt/bin/kubectl create -f /etc/kubernetes/descriptors/ceph --namespace=ceph
 fi
 # Initialize Monitoring
-if [[ "${MONITORING}" == "true" ]]
+if [[ "${MONITORING}" == "1" ]]
 then
     /opt/bin/kubectl create namespace monitoring
     /opt/bin/kubectl create -f /etc/kubernetes/descriptors/monitoring --namespace=monitoring
