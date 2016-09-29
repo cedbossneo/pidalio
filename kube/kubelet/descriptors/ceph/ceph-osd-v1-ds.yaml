@@ -77,9 +77,3 @@ spec:
               tcpSocket:
                 port: 6800
               timeoutSeconds: 5
-          resources:
-            requests:
-              memory: "512Mi"
-            limits:
-              memory: "1024Mi"
-              cpu: "2000m"
