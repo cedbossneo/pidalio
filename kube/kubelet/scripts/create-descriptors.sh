@@ -18,6 +18,7 @@ fi
 # Initialize Monitoring
 if [[ "${MONITORING}" == "true" ]]
 then
+    /opt/bin/kubectl create namespace monitoring
     /opt/bin/kubectl create -f /etc/kubernetes/descriptors/monitoring --namespace=monitoring
 fi
 exit 0
