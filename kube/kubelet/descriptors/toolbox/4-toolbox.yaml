@@ -1,0 +1,168 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        component: toolbox-frontend
+      name: manager
+    spec:
+      ports:
+        - port: 80
+          targetPort: 80
+      selector:
+        component: toolbox-frontend
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        component: toolbox-backend
+      name: toolbox-backend
+    spec:
+      ports:
+        - port: 8181
+          targetPort: 8181
+      selector:
+        component: toolbox-backend
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      labels:
+        component: toolbox-frontend
+      name: toolbox-frontend
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            component: toolbox-frontend
+        spec:
+          containers:
+            - image: cloudwattfr/toolbox-client:2.2
+              imagePullPolicy: Always
+              name: toolbox-frontend
+              ports:
+                - containerPort: 80
+  - apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      name: toolbox
+    spec:
+      rules:
+      - http:
+          paths:
+          - path: /api
+            backend:
+              serviceName: toolbox-backend
+              servicePort: 8181
+          - path: /socket.io
+            backend:
+              serviceName: toolbox-backend
+              servicePort: 8181
+          - path: /
+            backend:
+              serviceName: manager
+              servicePort: 80
+  - apiVersion: v1
+    kind: ReplicationController
+    metadata:
+      name: traefik-ingress-controller
+      labels:
+        k8s-app: traefik-ingress-lb
+    spec:
+      replicas: 1
+      selector:
+        k8s-app: traefik-ingress-lb
+      template:
+        metadata:
+          labels:
+            k8s-app: traefik-ingress-lb
+            name: traefik-ingress-lb
+        spec:
+          terminationGracePeriodSeconds: 60
+          containers:
+          - image: traefik
+            name: traefik-ingress-lb
+            imagePullPolicy: Always
+            ports:
+            - containerPort: 80
+            - containerPort: 443
+            - containerPort: 8080
+            args:
+            - --web
+            - --kubernetes
+            - --logLevel=DEBUG
+            - --entrypoints='Name:http Address::80'
+            - --defaultentrypoints=http
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        k8s-app: traefik-ingress-lb
+      name: traefik
+    spec:
+      sessionAffinity: ClientIP
+      type: NodePort
+      ports:
+        - port: 80
+          nodePort: 30000
+          targetPort: 80
+          name: http
+      selector:
+        k8s-app: traefik-ingress-lb
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      labels:
+        component: toolbox-backend
+      name: toolbox-backend
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            component: toolbox-backend
+        spec:
+          containers:
+            - image: cloudwattfr/toolbox-server:2.2
+              imagePullPolicy: Always
+              command:
+                - node
+                - --harmony
+                - server.bundle.js
+                - $private_ipv4
+                - $public_ipv4
+              name: toolbox
+              env:
+                - name: DOMAIN
+                  value: "$domain"
+                - name: OS_AUTH_URL
+                  value: "$os_auth"
+                - name: STACK
+                  value: "$stack"
+                - name: OS_TENANT_NAME
+                  value: "$os_tenant"
+                - name: OS_REGION
+                  value: $os_region
+                - name: OS_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: openstack
+                      key: username
+                - name: OS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: openstack
+                      key: password
+                - name: REPLICAS
+                  value: "1"
+              ports:
+                - containerPort: 8181
+              volumeMounts:
+                - mountPath: /keys
+                  name: key-storage
+          volumes:
+            - name: key-storage
+              hostPath:
+                path: /home/core/keys
