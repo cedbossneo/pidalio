@@ -6,6 +6,7 @@ source /etc/pidalio.env
 if [[ "${CEPH}" == "True" ]]
 then
     /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph-tools.sh
+    docker pull ceph/base
 fi
 docker pull cedbossneo/etcd-cluster-on-docker
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
