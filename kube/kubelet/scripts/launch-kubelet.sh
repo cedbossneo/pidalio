@@ -27,7 +27,7 @@ chown -R core:core /home/core/.kube
     --network-plugin-dir=/etc/cni/net.d \
     --api-servers=https://10.42.1.1 \
     --register-node=true \
-    --node-labels=type=${NODE_TYPE} \
+    --node-labels=type=${NODE_TYPE},storage=${NODE_STORAGE} \
     --allow-privileged=true \
     --node-ip=${NODE_IP} \
     --hostname-override=${NODE_PUBLIC_IP} \
