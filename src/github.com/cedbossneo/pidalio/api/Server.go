@@ -67,5 +67,5 @@ func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, etcdC
 			"publicKey": string(public),
 		})
 	})
-	r.Run(":3000")
+	r.Run("0.0.0.0:3000")
 }
