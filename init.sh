@@ -10,13 +10,12 @@ then
 fi
 docker pull cedbossneo/etcd-cluster-on-docker
 export DOCKER_HOST=unix:///var/run/weave/weave.sock
-SLEEP_TIME=$(expr $RANDOM % 30)
-echo "Sleeping $SLEEP_TIME seconds"
-sleep ${SLEEP_TIME}
 EXISTING_IPS=$(/opt/bin/weave dns-lookup etcd | sort)
 EXISTING_IDS=""
+echo "Existing IPS: $EXISTING_IPS"
 for ip in ${EXISTING_IPS}
 do
+    echo "Testing $ip"
     curl -s -m 1 http://${ip}:2379/v2/stats/self
     if [ $? -eq 0 ]
     then
