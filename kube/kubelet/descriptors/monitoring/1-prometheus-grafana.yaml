@@ -167,6 +167,9 @@ data:
       scrape_timeout: 10s
       evaluation_interval: 10s
 
+    static_config:
+      targets:
+        - ceph-exporter:9128
     scrape_configs:
 
       # # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L10
@@ -257,10 +260,6 @@ data:
             target_label: kubernetes_name
 
       # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L156
-      - job_name: 'ceph'
-        static_config:
-          targets:
-            - ceph-exporter:9128
       - job_name: 'kubernetes-pods'
         kubernetes_sd_configs:
           - api_servers:
