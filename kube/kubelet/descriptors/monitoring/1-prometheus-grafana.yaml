@@ -257,6 +257,10 @@ data:
             target_label: kubernetes_name
 
       # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L156
+      - job_name: 'ceph'
+        static_config:
+          targets:
+            - ceph-exporter:9128
       - job_name: 'kubernetes-pods'
         kubernetes_sd_configs:
           - api_servers:

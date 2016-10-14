@@ -1,0 +1,58 @@
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: ceph
+    daemon: exporter
+  name: ceph-exporter
+  namespace: ceph
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: ceph-exporter
+      namespace: ceph
+      labels:
+        app: ceph
+        daemon: exporter
+    spec:
+      nodeSelector:
+        storage: "true"
+      serviceAccount: default
+      volumes:
+        - name: ceph-conf
+          secret:
+            secretName: ceph-conf-combined
+        - name: ceph-bootstrap-osd-keyring
+          secret:
+            secretName: ceph-bootstrap-osd-keyring
+        - name: ceph-bootstrap-mds-keyring
+          secret:
+            secretName: ceph-bootstrap-mds-keyring
+        - name: ceph-bootstrap-rgw-keyring
+          secret:
+            secretName: ceph-bootstrap-rgw-keyring
+      containers:
+        - name: ceph-exporter
+          image: cedbossneo/ceph_exporter:latest
+          ports:
+            - containerPort: 9128
+          volumeMounts:
+            - name: ceph-conf
+              mountPath: /etc/ceph
+            - name: ceph-bootstrap-osd-keyring
+              mountPath: /var/lib/ceph/bootstrap-osd
+            - name: ceph-bootstrap-mds-keyring
+              mountPath: /var/lib/ceph/bootstrap-mds
+            - name: ceph-bootstrap-rgw-keyring
+              mountPath: /var/lib/ceph/bootstrap-rgw
+          livenessProbe:
+              tcpSocket:
+                port: 9128
+              initialDelaySeconds: 20
+              timeoutSeconds: 5
+          readinessProbe:
+              tcpSocket:
+                port: 9128
+              timeoutSeconds: 5
