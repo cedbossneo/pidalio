@@ -14,11 +14,23 @@ if [[ "${CEPH}" == "True" ]]
 then
     /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
     /opt/bin/kubectl create -f /etc/kubernetes/descriptors/ceph --namespace=ceph
-fi
-# Initialize Monitoring
-if [[ "${MONITORING}" == "True" ]]
-then
-    /opt/bin/kubectl create namespace monitoring
-    /opt/bin/kubectl create -f /etc/kubernetes/descriptors/monitoring --namespace=monitoring
+    if [[ "${MONITORING}" == "True" ]]
+    then
+        until [ "$(/opt/bin/kubectl get pods --namespace=ceph | tail -n +2 | egrep -v '(.*)1/1(.*)Running' | wc -l)" == "0" ]
+        do
+          echo "Waiting for ceph to be ready"
+          sleep 10
+        done
+        echo "Creating monitoring disk in ceph"
+        until /opt/bin/rbd -m ceph-mon.ceph info prometheus
+        do
+          /opt/bin/rbd -m ceph-mon.ceph create prometheus --size=50G
+        done
+        until /opt/bin/rbd -m ceph-mon.ceph info grafana
+        do
+          /opt/bin/rbd -m ceph-mon.ceph create grafana --size=1G
+        done
+        /opt/bin/kubectl create -f /etc/kubernetes/descriptors/monitoring --namespace=monitoring
+    fi
 fi
 exit 0

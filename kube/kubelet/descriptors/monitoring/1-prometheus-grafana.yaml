@@ -16,7 +16,7 @@ spec:
         component: core
     spec:
       containers:
-        - image: grafana/grafana:3.1.0
+        - image: grafana/grafana:3.1.1
           name: grafana-core
           # env:
           resources:
@@ -46,7 +46,14 @@ spec:
             mountPath: /var
       volumes:
       - name: grafana-persistent-storage
-        emptyDir: {}
+        rbd:
+          monitors:
+          - ceph-mon.ceph:6789
+          user: admin
+          image: grafana
+          pool: rbd
+          secretRef:
+            name: ceph-client-key
 ---
 apiVersion: v1
 kind: Service
@@ -313,10 +320,11 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.1.2
+        image: prom/prometheus:v1.2.1
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'
+          - '-storage.local.path=/data'
           - '-config.file=/etc/prometheus/prometheus.yml'
         ports:
         - name: webui
@@ -324,10 +332,21 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
+        - name: data-volume
+          mountPath: /data
       volumes:
       - name: config-volume
         configMap:
           name: prometheus-core
+      - name: data-volume
+        rbd:
+          monitors:
+          - ceph-mon.ceph:6789
+          user: admin
+          image: prometheus
+          pool: rbd
+          secretRef:
+            name: ceph-client-key
 ---
 apiVersion: v1
 kind: Service
