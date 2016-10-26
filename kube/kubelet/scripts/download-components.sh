@@ -6,7 +6,7 @@ do
     if [[ -x /opt/bin/$app ]]; then
         echo "$app already installed"
     else
-        curl -o /opt/bin/$app http://storage.googleapis.com/kubernetes-release/release/v1.4.3/bin/linux/amd64/$app
+        curl -o /opt/bin/$app http://storage.googleapis.com/kubernetes-release/release/v1.4.4/bin/linux/amd64/$app
         chmod +x /opt/bin/$app
         echo "$app installed"
     fi

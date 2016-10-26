@@ -8,13 +8,13 @@ RestartSec=10
 EnvironmentFile=/etc/pidalio.env
 Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
-ExecStartPre=/usr/bin/docker pull quay.io/coreos/hyperkube:v1.4.3_coreos.0
+ExecStartPre=/usr/bin/docker pull quay.io/coreos/hyperkube:v1.4.4_coreos.0
 ExecStart=/usr/bin/docker run \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --rm \
     --name=pidalio-scheduler \
-    quay.io/coreos/hyperkube:v1.4.3_coreos.0 \
+    quay.io/coreos/hyperkube:v1.4.4_coreos.0 \
     /hyperkube \
     scheduler \
     --master=https://pidalio-apiserver \
