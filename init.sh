@@ -28,5 +28,5 @@ else
         echo "Etcd $EXISTING_ETCD did not come up...exiting"
         exit 1
     fi
-    docker run --rm --name=etcd-proxy -p 2379:2379 -p 2380:2380 cedbossneo/docker-etcd-rclone etcd -proxy on -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 -initial-cluster etcd=http://${EXISTING_ETCD}:2380
+    docker run --rm --name=etcd-proxy -p 2379:2379 -p 2380:2380 cedbossneo/docker-etcd-rclone /proxy.sh ${EXISTING_ETCD}
 fi
