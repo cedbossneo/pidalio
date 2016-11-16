@@ -15,13 +15,6 @@ write_files:
       #!/bin/bash
       NODE_NAME=$(hostname |cut -d '.' -f 1)
       NODE_FQDN=$(hostname)
-      cat <<EOF > /etc/pidalio.env
-      NODE_NAME=$NODE_NAME
-      NODE_FQDN=$NODE_FQDN
-      NODE_IP=$private_ipv4$
-      NODE_PUBLIC_IP=$public_ipv4$
-      NODE_TYPE=$os_region$
-      NODE_STORAGE=false
       cat <<EOF > /etc/pidalio.etcd.rclone.conf
       [remote]
       type = swift
@@ -31,6 +24,13 @@ write_files:
       tenant = $os_tenant_name$
       region = $os_region$
       EOF
+      cat <<EOF > /etc/pidalio.env
+      NODE_NAME=$NODE_NAME
+      NODE_FQDN=$NODE_FQDN
+      NODE_IP=$private_ipv4$
+      NODE_PUBLIC_IP=$public_ipv4$
+      NODE_TYPE=$os_region$
+      NODE_STORAGE=false
       CEPH=$ceph$
       CEPH_DISK=True
       CEPH_DISK_DEVICE=/dev/vdb

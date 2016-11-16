@@ -15,6 +15,10 @@ write_files:
       #!/bin/bash
       NODE_NAME=$(hostname |cut -d '.' -f 1)
       NODE_FQDN=$(hostname)
+      cat <<EOF > /etc/pidalio.etcd.rclone.conf
+      [remote]
+      type = google cloud storage
+      EOF
       cat <<EOF > /etc/pidalio.env
       NODE_NAME=$NODE_NAME
       NODE_FQDN=$NODE_FQDN
@@ -22,10 +26,6 @@ write_files:
       NODE_PUBLIC_IP=$public_ipv4
       NODE_TYPE=gce
       NODE_STORAGE=true
-      cat <<EOF > /etc/pidalio.etcd.rclone.conf
-      [remote]
-      type = google cloud storage
-      EOF
       CEPH=True
       CEPH_DISK=True
       CEPH_DISK_DEVICE=/dev/sdb
