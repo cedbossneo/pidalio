@@ -32,7 +32,7 @@ spec:
                 },
                 "env": [
                   { "name": "CEPH_DAEMON", "value": "osd_ceph_disk_prepare" },
-                  { "name": "OSD_DEVICE", "value": "/dev/vdb" },
+                  { "name": "OSD_DEVICE", "value": "$CEPH_DISK_DEVICE$" },
                   { "name": "KV_TYPE", "value": "k8s" },
                   { "name": "CLUSTER", "value": "ceph" },
                   { "name": "CEPH_GET_ADMIN_KEY", "value": "1" }
@@ -85,7 +85,7 @@ spec:
             - name: CEPH_DAEMON
               value: osd_ceph_disk_activate
             - name: OSD_DEVICE
-              value: /dev/vdb
+              value: $CEPH_DISK_DEVICE$
             - name: KV_TYPE
               value: k8s
             - name: CLUSTER

@@ -1,0 +1,234 @@
+#cloud-config
+write_files:
+  - path: /opt/weave-init.sh
+    permissions: 0700
+    owner: "root:root"
+    content: |
+      #!/bin/bash
+      echo WEAVE_PEERS=\"$PEER$\" > /etc/weave.env
+      echo WEAVEPROXY_ARGS=\"--rewrite-inspect\" >> /etc/weave.env
+      echo WEAVE_PASSWORD=\"$TOKEN$\" >> /etc/weave.env
+  - path: /opt/pidalio-init.sh
+    permissions: 0700
+    owner: "root:root"
+    content: |
+      #!/bin/bash
+      NODE_NAME=$(hostname |cut -d '.' -f 1)
+      NODE_FQDN=$(hostname)
+      cat <<EOF > /etc/pidalio.env
+      NODE_NAME=$NODE_NAME
+      NODE_FQDN=$NODE_FQDN
+      NODE_IP=$private_ipv4
+      NODE_PUBLIC_IP=$public_ipv4
+      NODE_TYPE=gce
+      NODE_STORAGE=true
+      cat <<EOF > /etc/pidalio.etcd.rclone.conf
+      [remote]
+      type = google cloud storage
+      EOF
+      CEPH=True
+      CEPH_DISK=True
+      CEPH_DISK_DEVICE=/dev/sdb
+      MONITORING=True
+      ETCD_NODES=3
+      PEER="$PEER$"
+      PIDALIO_TOKEN=$TOKEN$
+      DOMAIN=cluster.local
+      PATH=/opt/bin/:/usr/bin/:/usr/sbin:$PATH
+      EOF
+      if [[ -d /opt/pidalio ]]
+      then
+        echo "Pidalio already checkout"
+      else
+        git clone https://github.com/cedbossneo/pidalio.git /opt/pidalio
+      fi
+      /opt/pidalio/init.sh
+  - path: /opt/pidalio-units.sh
+    permissions: 0700
+    owner: "root:root"
+    content: |
+      #!/bin/bash
+      while true; do
+        /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio.service
+        /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-apiserver.service
+        /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-controller.service
+        /usr/bin/fleetctl start /opt/pidalio/kube/units/master/pidalio-scheduler.service
+        /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-proxy.service
+        /usr/bin/fleetctl start /opt/pidalio/kube/units/pidalio-node.service
+        for peer in $(/opt/bin/weave report | /usr/bin/jq -r '.IPAM.Entries | unique_by(.Peer) | .[] | select(.IsKnownPeer==false) | .Peer')
+        do
+          /opt/bin/weave rmpeer $peer
+        done
+        /usr/bin/docker rm pidalio pidalio-apiserver 2> /dev/null
+        sleep 60
+      done
+coreos:
+  update:
+    reboot-strategy: "off"
+  fleet:
+      public-ip: "$public_ipv4"
+      metadata: "region=gce"
+      etcd_servers: "http://localhost:2379"
+  units:
+    - name: 50-docker.network
+      mask: true
+    - name: 50-docker-veth.network
+      mask: true
+    - name: zz-default.network
+      runtime: false
+      content: |
+        # default should not match virtual Docker/weave bridge/veth network interfaces
+        [Match]
+        Name=eth*
+
+        [Network]
+        DHCP=yes
+
+        [DHCP]
+        UseMTU=true
+        UseDomains=true
+    - name: etcd2.service
+      command: start
+      content: |
+        [Unit]
+        Description=etcd2
+        After=weave-network.target
+        Requires=weave-network.target
+        Conflicts=etcd.service
+
+        [Service]
+        EnvironmentFile=-/etc/weave.env
+        ExecStartPre=/opt/bin/weave expose
+        ExecStart=/opt/pidalio-init.sh
+        ExecStop=/usr/bin/docker rm -f etcd etcd-proxy
+        Restart=always
+        RestartSec=10s
+        LimitNOFILE=40000
+        TimeoutStartSec=5m
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: fleet.service
+      command: start
+    - name: weave-network.target
+      enable: true
+      content: |
+        [Unit]
+        Description=Weave Network Setup Complete
+        Documentation=man:systemd.special(7)
+        RefuseManualStart=no
+        [Install]
+        WantedBy=multi-user.target
+    - name: weave-init.service
+      command: start
+      content: |
+        [Unit]
+        Before=install-weave.service
+        Description=Install Weave
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        TimeoutStartSec=5m
+        ExecStart=/opt/weave-init.sh
+    - name: 10-weave.network
+      runtime: false
+      content: |
+        [Match]
+        Type=bridge
+        Name=weave*
+        [Network]
+    - name: install-weave.service
+      enable: true
+      content: |
+        [Unit]
+        After=docker.service weave-init.service
+        Requires=docker.service weave-init.service
+        Before=weave.service
+        Description=Install Weave
+        Requires=network-online.target
+        [Service]
+        EnvironmentFile=-/etc/weave.env
+        Type=oneshot
+        RemainAfterExit=yes
+        TimeoutStartSec=5m
+        ExecStartPre=/bin/mkdir -p /opt/bin/ /opt/cni/bin /etc/cni/net.d
+        ExecStartPre=-/usr/bin/wget -O /tmp/cni.tgz https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.tgz
+        ExecStartPre=-/usr/bin/tar -xvzf /tmp/cni.tgz -C /opt/cni/bin/
+        ExecStartPre=/usr/bin/curl \
+          --silent \
+          --location \
+          git.io/weave \
+          --output /opt/bin/weave
+        ExecStartPre=/usr/bin/chmod +x /opt/bin/weave
+        ExecStart=/opt/bin/weave setup
+        [Install]
+        WantedBy=weave-network.target
+        WantedBy=weave.service
+    - name: weave.service
+      enable: true
+      content: |
+        [Unit]
+        After=install-weave.service
+        After=docker.service
+        Description=Weave Network Router
+        Documentation=http://weave.works/docs
+        Requires=docker.service
+        Requires=install-weave.service
+        [Service]
+        TimeoutStartSec=5m
+        EnvironmentFile=-/etc/weave.env
+        ExecStartPre=/opt/bin/weave launch-router $WEAVE_PEERS
+        ExecStart=/usr/bin/docker attach weave
+        Restart=on-failure
+        ExecStop=/opt/bin/weave stop-router
+        [Install]
+        WantedBy=weave-network.target
+    - name: weaveproxy.service
+      enable: true
+      content: |
+        [Unit]
+        After=install-weave.service
+        After=docker.service
+        Description=Weave Network Proxy
+        Documentation=http://weave.works/docs
+        Requires=docker.service
+        Requires=install-weave.service
+        [Service]
+        TimeoutStartSec=5m
+        EnvironmentFile=-/etc/weave.env
+        ExecStartPre=/opt/bin/weave launch-proxy $WEAVEPROXY_ARGS
+        ExecStart=/usr/bin/docker attach weaveproxy
+        Restart=on-failure
+        ExecStop=/opt/bin/weave stop-proxy
+        [Install]
+        WantedBy=weave-network.target
+    - name: weaveplugin.service
+      enable: true
+      content: |
+        [Unit]
+        After=install-weave.service
+        After=docker.service
+        Description=Weave Network Plugin
+        Documentation=http://weave.works/docs
+        Requires=docker.service
+        Requires=install-weave.service
+        [Service]
+        TimeoutStartSec=5m
+        EnvironmentFile=-/etc/weave.env
+        ExecStartPre=/opt/bin/weave launch-plugin
+        ExecStart=/usr/bin/docker attach weaveplugin
+        Restart=on-failure
+        ExecStop=/opt/bin/weave stop-plugin
+        [Install]
+        WantedBy=weave-network.target
+    - name: pidalio-launch.service
+      command: start
+      content: |
+        [Unit]
+        After=fleet.service etcd2.service
+        Requires=fleet.service etcd2.service
+        [Service]
+        Restart=always
+        RestartSec=10
+        TimeoutStartSec=5m
+        ExecStart=/opt/pidalio-units.sh

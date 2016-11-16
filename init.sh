@@ -17,7 +17,7 @@ EXISTING_ETCD=$(/opt/bin/weave dns-lookup etcd)
 echo "Existing ETCD: $EXISTING_ETCD"
 if [[ "$EXISTING_ETCD" == "" ]]
 then
-    docker run -e TOKEN=${PIDALIO_TOKEN} -e OS_USERNAME=${OS_USERNAME} -e OS_PASSWORD=${OS_PASSWORD} -e OS_AUTH_URL=${OS_AUTH_URL} -e OS_TENANT_NAME=${OS_TENANT_NAME} -e OS_REGION_NAME=${OS_REGION_NAME} --rm --name=etcd -p 2379:2379 -p 2380:2380 cedbossneo/docker-etcd-rclone
+    docker run -e TOKEN=${PIDALIO_TOKEN} -v /etc/pidalio.etcd.rclone.conf:/root/.rclone.conf --rm --name=etcd -p 2379:2379 -p 2380:2380 cedbossneo/docker-etcd-rclone
 else
     echo "Testing $EXISTING_ETCD"
     curl -s -m 1 http://${EXISTING_ETCD}:2379/v2/stats/self
