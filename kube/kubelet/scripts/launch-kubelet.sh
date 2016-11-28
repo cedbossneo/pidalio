@@ -22,10 +22,24 @@ users:
     client-key: /etc/kubernetes/ssl/node-key.pem
 EOF
 chown -R core:core /home/core/.kube
-/opt/bin/kubelet \
+export DOCKER_HOST=unix:///var/run/weave/weave.sock
+/usr/bin/docker pull quay.io/coreos/hyperkube:v1.4.6_coreos.0
+/usr/bin/docker run \
+    --volume /etc/cni:/etc/cni \
+    --volume /var/log:/var/log \
+    --volume /etc/kubernetes:/etc/kubernetes \
+    --volume /usr/share/ca-certificates:/etc/ssl/certs \
+    --volume /opt/pidalio/weave.dns:/etc/resolv.conf \
+    --net=host \
+    --privileged \
+    --rm \
+    --name=pidalio-node \
+    quay.io/coreos/hyperkube:v1.4.6_coreos.0 \
+    /hyperkube \
+    kubelet \
     --network-plugin=cni \
     --network-plugin-dir=/etc/cni/net.d \
-    --api-servers=https://10.42.1.1 \
+    --api-servers=https://pidalio-apiserver \
     --register-node=true \
     --node-labels=type=${NODE_TYPE},storage=${NODE_STORAGE} \
     --allow-privileged=true \

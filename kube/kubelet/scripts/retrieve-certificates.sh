@@ -11,6 +11,11 @@ do
     echo "Trying: ${PIDALIO_URL}"
     sleep 1
 done
+echo "Setting DNS"
+WEAVE_DNS_ADDRESS=$(/opt/bin/weave report | jq -r .DNS.Address)
+cat <<EOF > /opt/pidalio/weave.dns
+nameserver ${WEAVE_DNS_ADDRESS}
+EOF
 # Root CA
 if [ ! -e /etc/kubernetes/ssl/ca.pem ]; then
     curl -s ${PIDALIO_URL}/certs/ca\?token\=${PIDALIO_TOKEN} > ca.json

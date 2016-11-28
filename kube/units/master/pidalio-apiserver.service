@@ -12,7 +12,6 @@ ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/prepare-yaml.sh
 ExecStartPre=/usr/bin/docker pull quay.io/coreos/hyperkube:v1.4.6_coreos.0
 ExecStart=/usr/bin/docker run \
-    -e WEAVE_CIDR=10.42.1.1/8 \
     --volume /etc/kubernetes:/etc/kubernetes \
     --volume /usr/share/ca-certificates:/etc/ssl/certs \
     --publish 8080:8080 \
@@ -33,8 +32,7 @@ ExecStart=/usr/bin/docker run \
     --tls-cert-file=/etc/kubernetes/ssl/server.pem \
     --tls-private-key-file=/etc/kubernetes/ssl/server-key.pem \
     --client-ca-file=/etc/kubernetes/ssl/ca.pem \
-    --service-account-key-file=/etc/kubernetes/ssl/server-key.pem \
-    --advertise-address=10.42.1.1
+    --service-account-key-file=/etc/kubernetes/ssl/server-key.pem
 ExecStartPost=/opt/pidalio/kube/kubelet/scripts/create-descriptors.sh
 ExecStop=/usr/bin/docker rm -f pidalio-apiserver
 [X-Fleet]
