@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Create directories and download Kubernetes Components
 mkdir -p /etc/kubernetes/descriptors /etc/kubernetes/manifests /etc/kubernetes/ssl /opt/bin
-for app in kubectl
+for app in kubelet kube-proxy kubectl
 do
     if [[ -x /opt/bin/$app ]]; then
         echo "$app already installed"

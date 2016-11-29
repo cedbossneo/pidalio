@@ -10,12 +10,12 @@ do
     sed -i s/\\\$fsid\\\$/${FS_ID}/g ${file}
 done
 echo AQDP299XAAAAABAA9ut3smkroIdHsYCfqf5YWQ== > ceph-client-key
-/opt/bin/kubectl create namespace ceph
-/opt/bin/kubectl create namespace monitoring
-/opt/bin/kubectl create secret generic ceph-conf-combined --from-file=ceph.conf --from-file=ceph.client.admin.keyring --from-file=ceph.mon.keyring --namespace=ceph
-/opt/bin/kubectl create secret generic ceph-bootstrap-rgw-keyring --from-file=ceph.keyring=ceph.rgw.keyring --namespace=ceph
-/opt/bin/kubectl create secret generic ceph-bootstrap-mds-keyring --from-file=ceph.keyring=ceph.mds.keyring --namespace=ceph
-/opt/bin/kubectl create secret generic ceph-bootstrap-osd-keyring --from-file=ceph.keyring=ceph.osd.keyring --namespace=ceph
-/opt/bin/kubectl create secret generic ceph-client-key --from-file=ceph-client-key --namespace=ceph
-/opt/bin/kubectl create secret generic ceph-client-key --from-file=ceph-client-key --namespace=monitoring
-/opt/bin/kubectl create secret generic ceph-client-key --from-file=ceph-client-key
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create namespace ceph
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create namespace monitoring
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-conf-combined --from-file=ceph.conf --from-file=ceph.client.admin.keyring --from-file=ceph.mon.keyring --namespace=ceph
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-bootstrap-rgw-keyring --from-file=ceph.keyring=ceph.rgw.keyring --namespace=ceph
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-bootstrap-mds-keyring --from-file=ceph.keyring=ceph.mds.keyring --namespace=ceph
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-bootstrap-osd-keyring --from-file=ceph.keyring=ceph.osd.keyring --namespace=ceph
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-client-key --from-file=ceph-client-key --namespace=ceph
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-client-key --from-file=ceph-client-key --namespace=monitoring
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-client-key --from-file=ceph-client-key

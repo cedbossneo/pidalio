@@ -9,6 +9,6 @@ EnvironmentFile=/etc/pidalio.env
 Environment=MASTER=false
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
 ExecStart=/opt/pidalio/kube/kubelet/scripts/launch-kubelet.sh
-ExecStop=/usr/bin/docker rm -f pidalio-node
+ExecStop=/usr/bin/pkill kubelet
 [X-Fleet]
 Global=True

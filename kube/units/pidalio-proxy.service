@@ -7,24 +7,8 @@ Restart=always
 RestartSec=10
 EnvironmentFile=/etc/pidalio.env
 Environment=MASTER=false
-Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
-ExecStartPre=/usr/bin/docker pull quay.io/coreos/hyperkube:v1.4.6_coreos.0
-ExecStart=/usr/bin/docker run \
-    --volume /etc/kubernetes:/etc/kubernetes \
-    --volume /usr/share/ca-certificates:/etc/ssl/certs \
-    --volume /opt/pidalio/weave.dns:/etc/resolv.conf \
-    --net=host \
-    --privileged \
-    --rm \
-    --name=pidalio-proxy \
-    quay.io/coreos/hyperkube:v1.4.6_coreos.0 \
-    /hyperkube \
-    kube-proxy \
-    --master=https://pidalio-apiserver \
-    --hostname-override=${NODE_PUBLIC_IP} \
-    --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
-    --proxy-mode=iptables
-ExecStop=/usr/bin/docker rm -f pidalio-proxy
+ExecStart=/opt/pidalio/kube/kubelet/scripts/launch-proxy.sh
+ExecStop=/usr/bin/pkill kube-proxy
 [X-Fleet]
 Global=True
