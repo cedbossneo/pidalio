@@ -5,9 +5,9 @@ write_files:
     owner: "root:root"
     content: |
       #!/bin/bash
-      echo WEAVE_PEERS=\"$PEER$\" > /etc/weave.env
+      echo WEAVE_PEERS=\"${peer}\" > /etc/weave.env
       echo WEAVEPROXY_ARGS=\"--rewrite-inspect\" >> /etc/weave.env
-      echo WEAVE_PASSWORD=\"$TOKEN$\" >> /etc/weave.env
+      echo WEAVE_PASSWORD=\"${token}\" >> /etc/weave.env
   - path: /opt/pidalio-init.sh
     permissions: 0700
     owner: "root:root"
@@ -31,8 +31,8 @@ write_files:
       CEPH_DISK_DEVICE=/dev/sdb
       MONITORING=True
       ETCD_NODES=3
-      PEER="$PEER$"
-      PIDALIO_TOKEN=$TOKEN$
+      PEER="${peer}"
+      PIDALIO_TOKEN=${token}
       DOMAIN=cluster.local
       PATH=/opt/bin/:/usr/bin/:/usr/sbin:$PATH
       EOF

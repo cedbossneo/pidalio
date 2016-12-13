@@ -12,21 +12,17 @@ do
     sleep 1
 done
 # Root CA
-if [ ! -e /etc/kubernetes/ssl/ca.pem ]; then
-    curl -s ${PIDALIO_URL}/certs/ca\?token\=${PIDALIO_TOKEN} > ca.json
-    cat ca.json | jq -r .cert > /etc/kubernetes/ssl/ca.pem
-fi
+curl -s ${PIDALIO_URL}/certs/ca\?token\=${PIDALIO_TOKEN} > ca.json
+cat ca.json | jq -r .cert > /etc/kubernetes/ssl/ca.pem
 if [[ "${MASTER}" == "true" ]]
 then
   curl -s ${PIDALIO_URL}/certs/server\?token\=${PIDALIO_TOKEN} > server.json
   cat server.json | jq -r .privateKey > /etc/kubernetes/ssl/server-key.pem
   cat server.json | jq -r .cert > /etc/kubernetes/ssl/server.pem
 fi
-if [ ! -e /etc/kubernetes/ssl/node.pem ]; then
-    curl -s ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&fqdn=${NODE_FQDN}\&ip=${NODE_PUBLIC_IP} > node.json
-    cat node.json | jq -r .privateKey > /etc/kubernetes/ssl/node-key.pem
-    cat node.json | jq -r .cert > /etc/kubernetes/ssl/node.pem
-fi
+curl -s ${PIDALIO_URL}/certs/node\?token\=${PIDALIO_TOKEN}\&fqdn=${NODE_FQDN}\&ip=${NODE_PUBLIC_IP} > node.json
+cat node.json | jq -r .privateKey > /etc/kubernetes/ssl/node-key.pem
+cat node.json | jq -r .cert > /etc/kubernetes/ssl/node.pem
 cat <<EOF > /etc/kubernetes/kubeconfig.yaml
 apiVersion: v1
 kind: Config
