@@ -13,7 +13,7 @@ echo AQBmqFtYAAAAABAARfax/BYvY8leNbtxNc7o/Q== > ceph-client-key
 echo AQDP299XAAAAABAA9ut3smkroIdHsYCfqf5YWQ== > ceph-admin-key
 /opt/bin/kubectl --kubeconfig=/home/core/.kube/config create namespace ceph
 /opt/bin/kubectl --kubeconfig=/home/core/.kube/config create namespace monitoring
-/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-conf-combined --from-file=ceph.conf --from-file=ceph.client.admin.keyring --from-file=ceph.mon.keyring --namespace=ceph
+/opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-conf-combined --from-file=ceph.conf --from-file=ceph.client.admin.keyring --from-file=ceph.client.user.keyring --from-file=ceph.mon.keyring --namespace=ceph
 /opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-bootstrap-rgw-keyring --from-file=ceph.keyring=ceph.rgw.keyring --namespace=ceph
 /opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-bootstrap-mds-keyring --from-file=ceph.keyring=ceph.mds.keyring --namespace=ceph
 /opt/bin/kubectl --kubeconfig=/home/core/.kube/config create secret generic ceph-bootstrap-osd-keyring --from-file=ceph.keyring=ceph.osd.keyring --namespace=ceph
