@@ -7,23 +7,9 @@ Restart=always
 RestartSec=10
 EnvironmentFile=/etc/pidalio.env
 Environment=MASTER=true
-Environment=DOCKER_HOST=unix:///var/run/weave/weave.sock
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
-ExecStartPre=/usr/bin/docker pull quay.io/coreos/hyperkube:v1.5.1_coreos.0
-ExecStart=/usr/bin/docker run \
-    --volume /etc/kubernetes:/etc/kubernetes \
-    --volume /usr/share/ca-certificates:/etc/ssl/certs \
-    --rm \
-    --name=pidalio-controller \
-    quay.io/coreos/hyperkube:v1.5.1_coreos.0 \
-    /hyperkube \
-    controller-manager \
-    --master=https://pidalio-apiserver \
-    --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
-    --service-account-private-key-file=/etc/kubernetes/ssl/server-key.pem \
-    --pod-eviction-timeout=10s \
-    --node-monitor-grace-period=20s \
-    --root-ca-file=/etc/kubernetes/ssl/ca.pem
-ExecStop=/usr/bin/docker rm -f pidalio-controller
+ExecStartPre=/opt/pidalio/kube/kubelet/scripts/configure-dns.sh
+ExecStart=/opt/pidalio/kube/kubelet/scripts/launch-controller.sh
+ExecStop=/usr/bin/pkill kube-controller-manager
 [X-Fleet]
 Conflicts=pidalio-controller.service

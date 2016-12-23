@@ -8,6 +8,7 @@ RestartSec=10
 EnvironmentFile=/etc/pidalio.env
 Environment=MASTER=false
 ExecStartPre=/opt/pidalio/kube/kubelet/scripts/retrieve-certificates.sh
+ExecStartPre=/opt/pidalio/kube/kubelet/scripts/configure-dns.sh
 ExecStart=/opt/pidalio/kube/kubelet/scripts/launch-proxy.sh
 ExecStop=/usr/bin/pkill kube-proxy
 [X-Fleet]
