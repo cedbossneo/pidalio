@@ -1,4 +1,6 @@
 [client.user]
   key = AQBmqFtYAAAAABAARfax/BYvY8leNbtxNc7o/Q==
-  caps mon = "allow r"
-  caps osd = "allow rw pool=rbd"
+  auid = 1
+  caps mds = "allow"
+  caps mon = "allow *"
+  caps osd = "allow *"
