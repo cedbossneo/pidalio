@@ -346,7 +346,7 @@ spec:
           image: prometheus
           pool: rbd
           secretRef:
-            name: ceph-client-key
+            name: ceph-admin-key
 ---
 apiVersion: v1
 kind: Service
