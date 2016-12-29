@@ -1,6 +1,0 @@
-[client.user]
-  key = AQBmqFtYAAAAABAARfax/BYvY8leNbtxNc7o/Q==
-  auid = 1
-  caps mds = "allow"
-  caps mon = "allow *"
-  caps osd = "allow *"

@@ -13,33 +13,6 @@ spec:
       labels:
         app: ceph
         daemon: osd
-      annotations:
-        pod.alpha.kubernetes.io/init-containers: '[
-            {
-                "name": "osd-prepare",
-                "image": "ceph/daemon:latest",
-                "imagePullPolicy": "Always",
-                "volumeMounts": [
-                  { "name": "devices", "mountPath": "/dev" },
-                  { "name": "ceph", "mountPath": "/var/lib/ceph" },
-                  { "name": "ceph-conf", "mountPath": "/etc/ceph" },
-                  { "name": "ceph-bootstrap-osd-keyring", "mountPath": "/var/lib/ceph/bootstrap-osd" },
-                  { "name": "ceph-bootstrap-mds-keyring", "mountPath": "/var/lib/ceph/bootstrap-mds" },
-                  { "name": "ceph-bootstrap-rgw-keyring", "mountPath": "/var/lib/ceph/bootstrap-rgw" }
-                ],
-                "securityContext": {
-                  "privileged": true
-                },
-                "env": [
-                  { "name": "CEPH_DAEMON", "value": "osd_ceph_disk_prepare" },
-                  { "name": "OSD_DEVICE", "value": "$CEPH_DISK_DEVICE$" },
-                  { "name": "KV_TYPE", "value": "k8s" },
-                  { "name": "CLUSTER", "value": "ceph" },
-                  { "name": "CEPH_GET_ADMIN_KEY", "value": "1" }
-                ],
-                "command": ["/bin/bash", "-c", "if [[ \"$(parted --script ${OSD_DEVICE} print | egrep \"^ 1.*ceph data\")\" ]]; then echo Device already prepared; else /entrypoint.sh; fi"]
-            }
-        ]'
     spec:
       nodeSelector:
         storage: "true"
@@ -83,7 +56,7 @@ spec:
             privileged: true
           env:
             - name: CEPH_DAEMON
-              value: osd_ceph_disk_activate
+              value: osd_ceph_disk
             - name: OSD_DEVICE
               value: $CEPH_DISK_DEVICE$
             - name: KV_TYPE
