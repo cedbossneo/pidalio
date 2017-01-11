@@ -35,7 +35,7 @@ write_files:
       CEPH_DISK=True
       CEPH_DISK_DEVICE=/dev/sdb
       MONITORING=True
-      ETCD_NODES=3
+      PROVIDER_DNS="8.8.8.8"
       PEER="$PEER$"
       PIDALIO_TOKEN=$TOKEN$
       DOMAIN=cluster.local

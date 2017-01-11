@@ -73,3 +73,5 @@ fabric.properties
 src/github.com/cedbossneo/pidalio/vendor
 bin
 pidalio.iml
+.terraform
+*.backup
