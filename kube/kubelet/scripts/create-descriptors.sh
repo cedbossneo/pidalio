@@ -21,6 +21,7 @@ then
         -f /etc/kubernetes/descriptors/ceph/ceph-mon-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-mon-v1-svc.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-osd-v1-ds-disk.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-sc.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-svc.yaml
     else
@@ -30,6 +31,7 @@ then
         -f /etc/kubernetes/descriptors/ceph/ceph-mon-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-mon-v1-svc.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-osd-v1-ds-dir.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-sc.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-svc.yaml
     fi
