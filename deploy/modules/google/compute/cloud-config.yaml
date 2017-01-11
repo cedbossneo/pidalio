@@ -13,11 +13,14 @@ write_files:
     owner: "root:root"
     content: |
       #!/bin/bash
+      mkdir -p /etc/pidalio/rclone
       NODE_NAME=$(hostname |cut -d '.' -f 1)
       NODE_FQDN=$(hostname)
-      cat <<EOF > /etc/pidalio.etcd.rclone.conf
+      curl -H 'Metadata-Flavor: Google' -o /etc/pidalio/rclone/access.conf http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token
+      cat <<EOF > /etc/pidalio/rclone/rclone.conf
       [remote]
       type = google cloud storage
+      service_account_file = /rclone/access.conf
       EOF
       cat <<EOF > /etc/pidalio.env
       NODE_NAME=$NODE_NAME

@@ -43,6 +43,10 @@ resource "google_compute_instance_template" "instance_template" {
     ssh-keys = "core:${var.ssh_key}"
   }
 
+  service_account {
+    scopes = ["userinfo-email", "compute-rw", "storage-rw"]
+  }
+
 }
 
 resource "google_compute_instance_group_manager" "instance_group" {
