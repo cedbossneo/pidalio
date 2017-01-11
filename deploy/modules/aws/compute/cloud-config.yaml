@@ -5,7 +5,7 @@ write_files:
     owner: "root:root"
     content: |
       #!/bin/bash
-      echo WEAVE_PEERS=\"${peer}\" > /etc/weave.env
+      echo WEAVE_PEERS=\"${peers}\" > /etc/weave.env
       echo WEAVEPROXY_ARGS=\"--rewrite-inspect\" >> /etc/weave.env
       echo WEAVE_PASSWORD=\"${token}\" >> /etc/weave.env
   - path: /opt/pidalio-init.sh
@@ -13,25 +13,28 @@ write_files:
     owner: "root:root"
     content: |
       #!/bin/bash
+      mkdir -p /etc/pidalio/rclone
       NODE_NAME=$(hostname |cut -d '.' -f 1)
       NODE_FQDN=$(hostname)
-      cat <<EOF > /etc/pidalio.etcd.rclone.conf
+      cat <<EOF > /etc/pidalio/rclone/rclone.conf
       [remote]
-      type = google cloud storage
+      type = s3
+      access_key_id =
+      secret_access_key =
       EOF
       cat <<EOF > /etc/pidalio.env
       NODE_NAME=$NODE_NAME
       NODE_FQDN=$NODE_FQDN
       NODE_IP=$private_ipv4
       NODE_PUBLIC_IP=$public_ipv4
-      NODE_TYPE=gce
-      NODE_STORAGE=true
+      NODE_TYPE=aws
+      NODE_STORAGE=${storage}
       CEPH=True
       CEPH_DISK=True
       CEPH_DISK_DEVICE=/dev/sdb
-      MONITORING=True
+      MONITORING=False
       PROVIDER_DNS="169.254.169.254"
-      PEER="${peer}"
+      PEER="${peers}"
       PIDALIO_TOKEN=${token}
       DOMAIN=cluster.local
       PATH=/opt/bin/:/usr/bin/:/usr/sbin:$PATH
@@ -40,7 +43,7 @@ write_files:
       then
         echo "Pidalio already checkout"
       else
-        git clone https://github.com/cedbossneo/pidalio.git /opt/pidalio
+        git clone -b tf https://github.com/cedbossneo/pidalio.git /opt/pidalio
       fi
       /opt/pidalio/init.sh
   - path: /opt/pidalio-units.sh
@@ -62,7 +65,7 @@ coreos:
     reboot-strategy: "off"
   fleet:
       public-ip: "$public_ipv4"
-      metadata: "region=gce"
+      metadata: "region=aws"
       etcd_servers: "http://localhost:2379"
   units:
     - name: 50-docker.network
@@ -74,7 +77,7 @@ coreos:
       content: |
         # default should not match virtual Docker/weave bridge/veth network interfaces
         [Match]
-        Name=eth*
+        Name=ens*
 
         [Network]
         DHCP=yes

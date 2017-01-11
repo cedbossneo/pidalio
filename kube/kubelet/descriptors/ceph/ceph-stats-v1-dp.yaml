@@ -17,8 +17,6 @@ spec:
         app: ceph
         daemon: exporter
     spec:
-      nodeSelector:
-        storage: "true"
       serviceAccount: default
       volumes:
         - name: ceph-conf

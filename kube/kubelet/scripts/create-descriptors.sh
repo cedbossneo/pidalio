@@ -13,7 +13,7 @@ if [[ $i == 5 ]]; then exit 1; fi
 if [[ "${CEPH}" == "True" ]]
 then
     /opt/pidalio/kube/kubelet/scripts/ceph/install-ceph.sh
-    if [[ "${CEPH_DISK}" == "True" ]]
+    if [[ "${CEPH_TYPE}" == "disk" ]]
     then
         /opt/bin/kubectl --kubeconfig=/home/core/.kube/config --namespace=ceph create \
         -f /etc/kubernetes/descriptors/ceph/ceph-mds-v1-dp.yaml \
@@ -24,13 +24,25 @@ then
         -f /etc/kubernetes/descriptors/ceph/ceph-sc.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-svc.yaml
-    else
+    else if [[ "${CEPH_TYPE}" == "directory" ]]
+    then
         /opt/bin/kubectl --kubeconfig=/home/core/.kube/config --namespace=ceph create \
         -f /etc/kubernetes/descriptors/ceph/ceph-mds-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-mon-check-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-mon-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-mon-v1-svc.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-osd-v1-ds-dir.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-sc.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-dp.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-svc.yaml
+    else if [[ "${CEPH_TYPE}" == "dynamic" ]]
+    then
+        /opt/bin/kubectl --kubeconfig=/home/core/.kube/config --namespace=ceph create \
+        -f /etc/kubernetes/descriptors/ceph/ceph-mds-v1-dp.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-mon-check-v1-dp.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-mon-v1-dp.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-mon-v1-svc.yaml \
+        -f /etc/kubernetes/descriptors/ceph/ceph-osd-v1-ds-sfs.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-sc.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-dp.yaml \
         -f /etc/kubernetes/descriptors/ceph/ceph-stats-v1-svc.yaml

@@ -24,7 +24,6 @@ resource "google_compute_instance_template" "instance_template_storage" {
   disk {
     disk_type = "pd-standard"
     auto_delete = false
-    device_name = "/dev/sdb"
     disk_size_gb = "500"
   }
 

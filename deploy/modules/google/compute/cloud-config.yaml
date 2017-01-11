@@ -28,11 +28,9 @@ write_files:
       NODE_IP=$private_ipv4
       NODE_PUBLIC_IP=$public_ipv4
       NODE_TYPE=gce
-      NODE_STORAGE=${storage}
       CEPH=True
-      CEPH_DISK=True
-      CEPH_DISK_DEVICE=/dev/sdb
-      MONITORING=False
+      CEPH_TYPE=dynamic
+      MONITORING=True
       PROVIDER_DNS="169.254.169.254"
       PEER="${peers}"
       PIDALIO_TOKEN=${token}

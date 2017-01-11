@@ -14,8 +14,6 @@ spec:
         app: ceph
         daemon: osd
     spec:
-      nodeSelector:
-        storage: "true"
       volumes:
         - name: devices
           hostPath:

@@ -55,6 +55,5 @@ data "template_file" "user_data_node" {
   vars {
     peers    = "${var.peers}"
     token    = "${var.token}"
-    storage  = "false"
   }
 }
