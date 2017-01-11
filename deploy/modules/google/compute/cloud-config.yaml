@@ -16,11 +16,11 @@ write_files:
       mkdir -p /etc/pidalio/rclone
       NODE_NAME=$(hostname |cut -d '.' -f 1)
       NODE_FQDN=$(hostname)
-      curl -H 'Metadata-Flavor: Google' -o /etc/pidalio/rclone/access.conf http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token
+      GCE_TOKEN=$(curl -H 'Metadata-Flavor: Google' http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token)
       cat <<EOF > /etc/pidalio/rclone/rclone.conf
       [remote]
       type = google cloud storage
-      service_account_file = /rclone/access.conf
+      token = $GCE_TOKEN
       EOF
       cat <<EOF > /etc/pidalio.env
       NODE_NAME=$NODE_NAME
@@ -28,8 +28,8 @@ write_files:
       NODE_IP=$private_ipv4
       NODE_PUBLIC_IP=$public_ipv4
       NODE_TYPE=gce
-      NODE_STORAGE=true
-      CEPH=False
+      NODE_STORAGE=${storage}
+      CEPH=True
       CEPH_DISK=True
       CEPH_DISK_DEVICE=/dev/sdb
       MONITORING=False
