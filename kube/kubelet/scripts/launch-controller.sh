@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 /opt/bin/kube-controller-manager \
     --master=https://pidalio-apiserver \
+    --cloud-provider=${PROVIDER} \
+    --cloud-provider=/etc/pidalio/provider.config \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
     --service-account-private-key-file=/etc/kubernetes/ssl/server-key.pem \
     --pod-eviction-timeout=10s \

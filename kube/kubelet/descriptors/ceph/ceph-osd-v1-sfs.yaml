@@ -1,12 +1,3 @@
-kind: StorageClass
-apiVersion: storage.k8s.io/v1beta1
-metadata:
-  name: gce
-provisioner: kubernetes.io/gce-pd
-parameters:
-  type: pd-standard
-  zone: europe-west1-a
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -38,7 +29,7 @@ spec:
     - metadata:
         name: osd-directory
         annotations:
-          volume.alpha.kubernetes.io/storage-class: gce
+          volume.alpha.kubernetes.io/storage-class: provider
       spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:

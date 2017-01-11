@@ -26,7 +26,7 @@ chown -R core:core /home/core/.kube
     --node-labels=type=${NODE_TYPE} \
     --allow-privileged=true \
     --node-ip=${NODE_IP} \
-    --hostname-override=${NODE_PUBLIC_IP} \
+    --hostname-override=${NODE_ID} \
     --cluster-dns=10.244.0.3 \
     --cluster-domain=${DOMAIN} \
     --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
