@@ -16,7 +16,7 @@ func checkErrors(c *gin.Context, err error) bool {
 	return false
 }
 
-func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, etcdClient etcd.EtcdClient) {
+func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, etcdClient etcd.EtcdClient, bindAddress string) {
 	r := gin.Default()
 	r.Use(func(c *gin.Context) {
 		if c.Query("token")[0:16] != rootCerts.Token {
@@ -67,5 +67,5 @@ func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, etcdC
 			"publicKey": string(public),
 		})
 	})
-	r.Run("0.0.0.0:3000")
+	r.Run(bindAddress)
 }

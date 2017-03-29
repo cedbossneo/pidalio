@@ -6,4 +6,4 @@ ADD pidalio-linux-amd64 /usr/bin/pidalio
 
 RUN chmod +x /usr/bin/pidalio
 
-CMD ["/usr/bin/pidalio"]
+ENTRYPOINT ["/usr/bin/pidalio"]

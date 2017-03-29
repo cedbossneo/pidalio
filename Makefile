@@ -20,8 +20,8 @@ docker_build: docker_deps
 
 docker_deploy: docker_build
 	cp -f bin/pidalio-linux-amd64 dockerfiles/deploy/
-	docker build -t cedbossneo/pidalio:latest -f dockerfiles/deploy/Dockerfile dockerfiles/deploy/
-	docker push cedbossneo/pidalio:latest
+	docker build -t cedbossneo/pidalio:v2 -f dockerfiles/deploy/Dockerfile dockerfiles/deploy/
+	docker push cedbossneo/pidalio:v2
 
 deps:
 	mkdir -p $(GOPATH)/bin

@@ -7,7 +7,6 @@ import (
 	"time"
 	"math/big"
 	"github.com/cedbossneo/pidalio/utils"
-	"os"
 )
 
 type RootCerts struct {
@@ -78,7 +77,7 @@ func CreateRootCertificate(etcd etcd.EtcdClient, token string, key openssl.Priva
 	return certificate
 }
 
-func CreateServerCertificate(etcd etcd.EtcdClient, token string, rootCerts RootCerts) ([]byte, []byte, []byte) {
+func CreateServerCertificate(etcd etcd.EtcdClient, token string, domain string, kubernetesServiceIp string, rootCerts RootCerts) ([]byte, []byte, []byte) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName: "kube-apiserver",
@@ -94,7 +93,7 @@ func CreateServerCertificate(etcd etcd.EtcdClient, token string, rootCerts RootC
 	certificate.SetVersion(openssl.X509_V3)
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
-	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc." + os.Getenv("DOMAIN") + ", DNS:pidalio-apiserver, DNS:pidalio-apiserver.weave.local, IP:10.244.0.1")
+	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc." + domain + ", IP:" + kubernetesServiceIp)
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
@@ -214,7 +213,7 @@ func loadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
 	}
 }
 
-func loadServerCerts(etcd etcd.EtcdClient, token string, rootCerts RootCerts) ServerCerts {
+func loadServerCerts(etcd etcd.EtcdClient, token string, domain string, kubernetesServiceIp string, rootCerts RootCerts) ServerCerts {
 	if etcd.KeyExist("/certs/server/key") {
 		serverKey, err := etcd.GetKey("/certs/server/key")
 		if err != nil {
@@ -246,7 +245,7 @@ func loadServerCerts(etcd etcd.EtcdClient, token string, rootCerts RootCerts) Se
 			PublicKey: decryptedPublicKey,
 		}
 	} else {
-		cert, key, publicKey := CreateServerCertificate(etcd, token, rootCerts)
+		cert, key, publicKey := CreateServerCertificate(etcd, token, domain, kubernetesServiceIp, rootCerts)
 		return ServerCerts{
 			Certificate: cert,
 			PrivateKey: key,
@@ -255,8 +254,8 @@ func loadServerCerts(etcd etcd.EtcdClient, token string, rootCerts RootCerts) Se
 	}
 }
 
-func LoadCerts(etcd etcd.EtcdClient, token string) (RootCerts, ServerCerts) {
+func LoadCerts(etcd etcd.EtcdClient, token string, domain string, kubernetesServiceIp string) (RootCerts, ServerCerts) {
 	rootCerts := loadRootCerts(etcd, token)
-	serverCerts := loadServerCerts(etcd, token, rootCerts)
+	serverCerts := loadServerCerts(etcd, token, domain, kubernetesServiceIp, rootCerts)
 	return rootCerts, serverCerts
 }
