@@ -1,2 +1,0 @@
-#!/bin/sh
-/usr/bin/docker run --rm -v /sys:/sys --net=host -v /opt/pidalio/kube/kubelet/scripts/ceph/resolv.conf:/etc/resolv.conf:ro -v /opt/pidalio/kube/kubelet/scripts/ceph/keys/:/etc/ceph --privileged=true ceph/base rbd "$@"
