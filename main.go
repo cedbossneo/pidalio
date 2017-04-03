@@ -21,5 +21,8 @@ func init() {
 func main() {
 	etcdClient := etcd.CreateEtcdClient([]string{*etcdUri})
 	rootCerts, serverCerts := ssl.LoadCerts(etcdClient, (*token)[0:16], *domain, *kubernetesServiceIp)
-	api.CreateAPIServer(rootCerts, serverCerts, *bindAddress)
+	if handler, err := api.CreateAPIServer(rootCerts, serverCerts); err != nil {
+		panic(err)
+	}
+	http.ListenAndServe(*bindAddress, handler)
 }
