@@ -10,8 +10,7 @@ import (
 )
 
 func Encrypt(key string, text []byte) ([]byte, error) {
-	block, err := aes.NewCipher([]byte(key))
-	if err != nil {
+	if block, err := aes.NewCipher([]byte(key)); err != nil {
 		return nil, err
 	}
 	ciphertext := make([]byte, aes.BlockSize+len(text))
@@ -27,12 +26,10 @@ func Encrypt(key string, text []byte) ([]byte, error) {
 }
 
 func Decrypt(key string, encodedText []byte) ([]byte, error) {
-	block, err := aes.NewCipher([]byte(key))
-	if err != nil {
+	if block, err := aes.NewCipher([]byte(key)); err != nil {
 		return nil, err
 	}
-	text, err := base64.StdEncoding.DecodeString(string(encodedText))
-	if err != nil {
+	if text, err := base64.StdEncoding.DecodeString(string(encodedText)); err != nil {
 		return nil, err
 	}
 	if len(text) < aes.BlockSize {

@@ -22,16 +22,13 @@ type ServerCerts struct {
 }
 
 func GenerateKeypairs(bytes int) (openssl.PrivateKey, []byte, []byte) {
-	key, err := openssl.GenerateRSAKey(bytes)
-	if err != nil {
+	if key, err := openssl.GenerateRSAKey(bytes); err != nil {
 		log.Fatal("Error while generating private key", err)
 	}
-	pemPrivateKey, err := key.MarshalPKCS1PrivateKeyPEM()
-	if err != nil {
+	if pemPrivateKey, err := key.MarshalPKCS1PrivateKeyPEM(); err != nil {
 		log.Fatal("Error while exporting private key to PEM", err)
 	}
-	pemPublicKey, err := key.MarshalPKIXPublicKeyPEM()
-	if err != nil {
+	if pemPublicKey, err := key.MarshalPKIXPublicKeyPEM(); err != nil {
 		log.Fatal("Error while exporting public key to PEM", err)
 	}
 	return key, pemPrivateKey, pemPublicKey
@@ -39,12 +36,10 @@ func GenerateKeypairs(bytes int) (openssl.PrivateKey, []byte, []byte) {
 
 func CreateRootKeys(etcd etcd.EtcdClient, token string) openssl.PrivateKey {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
-	encryptedKey, err := utils.Encrypt(token, pemPrivateKey)
-	if err != nil {
+	if encryptedKey, err := utils.Encrypt(token, pemPrivateKey); err != nil {
 		log.Fatal("Error while encrypting Root Private Key", err)
 	}
-	encryptedPublicKey, err := utils.Encrypt(token, pemPublicKey)
-	if err != nil {
+	if encryptedPublicKey, err := utils.Encrypt(token, pemPublicKey); err != nil {
 		log.Fatal("Error while encrypting Root Public Key", err)
 	}
 	etcd.CreateKey("/certs/root/key", string(encryptedKey))
@@ -53,41 +48,37 @@ func CreateRootKeys(etcd etcd.EtcdClient, token string) openssl.PrivateKey {
 }
 
 func CreateRootCertificate(etcd etcd.EtcdClient, token string, key openssl.PrivateKey) *openssl.Certificate {
-	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
+	if certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName:   "kube-ca",
 		Country:      "FR",
 		Expires:      time.Hour * 24 * 10000,
 		Issued:       0,
 		Organization: "Kubernetes",
 		Serial:       big.NewInt(int64(1)),
-	}, key)
-	if err != nil {
+	}, key); err != nil {
 		log.Fatal("Error while creating Root CA", err)
 	}
 	certificate.Sign(key, openssl.EVP_SHA256)
-	cert, err := certificate.MarshalPEM()
-	if err != nil {
+	if cert, err := certificate.MarshalPEM(); err != nil {
 		log.Fatal("Error while creating Root CA", err)
 	}
-	encryptedCert, err := utils.Encrypt(token, cert)
-	if err != nil {
+	if encryptedCert, err := utils.Encrypt(token, cert); err != nil {
 		log.Fatal("Error while encrypting Root CA", err)
 	}
 	etcd.CreateKey("/certs/root/cert", string(encryptedCert))
 	return certificate
 }
 
-func CreateServerCertificate(etcd etcd.EtcdClient, token string, domain string, kubernetesServiceIp string, rootCerts RootCerts) ([]byte, []byte, []byte) {
+func CreateServerCertificate(etcd etcd.EtcdClient, token, domain, kubernetesServiceIp string, rootCerts RootCerts) ([]byte, []byte, []byte) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
-	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
+	if certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName:   "kube-apiserver",
 		Country:      "FR",
 		Expires:      time.Hour * 24 * 365,
 		Issued:       0,
 		Organization: "Kubernetes",
 		Serial:       big.NewInt(int64(1)),
-	}, key)
-	if err != nil {
+	}, key); err != nil {
 		log.Fatal("Error while creating Server CA", err)
 	}
 	certificate.SetVersion(openssl.X509_V3)
@@ -96,20 +87,16 @@ func CreateServerCertificate(etcd etcd.EtcdClient, token string, domain string, 
 	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc."+domain+", IP:"+kubernetesServiceIp)
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
-	cert, err := certificate.MarshalPEM()
-	if err != nil {
+	if cert, err := certificate.MarshalPEM(); err != nil {
 		log.Fatal("Error while marshalling Server CA", err)
 	}
-	encryptedKey, err := utils.Encrypt(token, pemPrivateKey)
-	if err != nil {
+	if encryptedKey, err := utils.Encrypt(token, pemPrivateKey); err != nil {
 		log.Fatal("Error while encrypting Server Private Key", err)
 	}
-	encryptedPublicKey, err := utils.Encrypt(token, pemPublicKey)
-	if err != nil {
+	if encryptedPublicKey, err := utils.Encrypt(token, pemPublicKey); err != nil {
 		log.Fatal("Error while encrypting Server Public Key", err)
 	}
-	encryptedCert, err := utils.Encrypt(token, cert)
-	if err != nil {
+	if encryptedCert, err := utils.Encrypt(token, cert); err != nil {
 		log.Fatal("Error while encrypting Server CA", err)
 	}
 	etcd.CreateKey("/certs/server/cert", string(encryptedCert))
@@ -120,40 +107,37 @@ func CreateServerCertificate(etcd etcd.EtcdClient, token string, domain string, 
 
 func CreateAdminCertificate(rootCerts RootCerts) ([]byte, []byte, []byte, error) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
-	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
+	if certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName:   "kube-admin",
 		Country:      "FR",
 		Expires:      time.Hour * 24 * 365,
 		Issued:       0,
 		Organization: "Kubernetes",
 		Serial:       big.NewInt(int64(1)),
-	}, key)
-	if err != nil {
+	}, key); err != nil {
 		log.Print("Error while creating Admin CA", err)
 		return nil, nil, nil, err
 	}
 	certificate.SetVersion(openssl.X509_V3)
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
-	cert, err := certificate.MarshalPEM()
-	if err != nil {
+	if cert, err := certificate.MarshalPEM(); err != nil {
 		log.Print("Error while creating Admin CA", err)
 		return nil, nil, nil, err
 	}
 	return cert, pemPrivateKey, pemPublicKey, nil
 }
 
-func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte, []byte, []byte, error) {
+func CreateNodeCertificate(rootCerts RootCerts, fqdn, ip string) ([]byte, []byte, []byte, error) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
-	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
+	if certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
 		CommonName:   fqdn,
 		Country:      "FR",
 		Expires:      time.Hour * 24 * 365,
 		Issued:       0,
 		Organization: "Kubernetes",
 		Serial:       big.NewInt(int64(1)),
-	}, key)
-	if err != nil {
+	}, key); err != nil {
 		log.Print("Error while creating Node CA", err)
 		return nil, nil, nil, err
 	}
@@ -163,8 +147,7 @@ func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte,
 	certificate.AddExtension(openssl.NID_subject_alt_name, "IP:"+ip)
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
-	cert, err := certificate.MarshalPEM()
-	if err != nil {
+	if cert, err := certificate.MarshalPEM(); err != nil {
 		log.Print("Error while creating Node CA", err)
 		return nil, nil, nil, err
 	}
@@ -173,28 +156,22 @@ func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte,
 
 func loadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
 	if etcd.KeyExist("/certs/root/key") {
-		rootKey, err := etcd.GetKey("/certs/root/key")
-		if err != nil {
+		if rootKey, err := etcd.GetKey("/certs/root/key"); err != nil {
 			log.Fatal("Error while loading Root Private Key", err)
 		}
-		decryptedKey, err := utils.Decrypt(token, []byte(rootKey))
-		if err != nil {
+		if decryptedKey, err := utils.Decrypt(token, []byte(rootKey)); err != nil {
 			log.Fatal("Error while decrypting Root Private Key", err)
 		}
-		key, err := openssl.LoadPrivateKeyFromPEM(decryptedKey)
-		if err != nil {
+		if key, err := openssl.LoadPrivateKeyFromPEM(decryptedKey); err != nil {
 			log.Fatal("Error while loading Root Private Key", err)
 		}
-		rootCert, err := etcd.GetKey("/certs/root/cert")
-		if err != nil {
+		if rootCert, err := etcd.GetKey("/certs/root/cert"); err != nil {
 			log.Fatal("Error while loading Root Certificate", err)
 		}
-		decryptedCert, err := utils.Decrypt(token, []byte(rootCert))
-		if err != nil {
+		if decryptedCert, err := utils.Decrypt(token, []byte(rootCert)); err != nil {
 			log.Fatal("Error while decrypting Root Certificate", err)
 		}
-		cert, err := openssl.LoadCertificateFromPEM(decryptedCert)
-		if err != nil {
+		if cert, err := openssl.LoadCertificateFromPEM(decryptedCert); err != nil {
 			log.Fatal("Error while loading Root Certificate", err)
 		}
 		return RootCerts{
@@ -213,30 +190,24 @@ func loadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
 	}
 }
 
-func loadServerCerts(etcd etcd.EtcdClient, token string, domain string, kubernetesServiceIp string, rootCerts RootCerts) ServerCerts {
+func loadServerCerts(etcd etcd.EtcdClient, token, domain, kubernetesServiceIp string, rootCerts RootCerts) ServerCerts {
 	if etcd.KeyExist("/certs/server/key") {
-		serverKey, err := etcd.GetKey("/certs/server/key")
-		if err != nil {
+		if serverKey, err := etcd.GetKey("/certs/server/key"); err != nil {
 			log.Fatal("Error while loading Server Private Key", err)
 		}
-		decryptedKey, err := utils.Decrypt(token, []byte(serverKey))
-		if err != nil {
+		if decryptedKey, err := utils.Decrypt(token, []byte(serverKey)); err != nil {
 			log.Fatal("Error while decrypting Server Private Key", err)
 		}
-		publicKey, err := etcd.GetKey("/certs/server/key.pub")
-		if err != nil {
+		if publicKey, err := etcd.GetKey("/certs/server/key.pub"); err != nil {
 			log.Fatal("Error while loading Server Public Key", err)
 		}
-		decryptedPublicKey, err := utils.Decrypt(token, []byte(publicKey))
-		if err != nil {
+		if decryptedPublicKey, err := utils.Decrypt(token, []byte(publicKey)); err != nil {
 			log.Fatal("Error while decrypting Server Public Key", err)
 		}
-		cert, err := etcd.GetKey("/certs/server/cert")
-		if err != nil {
+		if cert, err := etcd.GetKey("/certs/server/cert"); err != nil {
 			log.Fatal("Error while loading Server Certificate", err)
 		}
-		decryptedCert, err := utils.Decrypt(token, []byte(cert))
-		if err != nil {
+		if decryptedCert, err := utils.Decrypt(token, []byte(cert)); err != nil {
 			log.Fatal("Error while decrypting Server Certificate", err)
 		}
 		return ServerCerts{
@@ -254,7 +225,7 @@ func loadServerCerts(etcd etcd.EtcdClient, token string, domain string, kubernet
 	}
 }
 
-func LoadCerts(etcd etcd.EtcdClient, token string, domain string, kubernetesServiceIp string) (RootCerts, ServerCerts) {
+func LoadCerts(etcd etcd.EtcdClient, token, domain, kubernetesServiceIp string) (RootCerts, ServerCerts) {
 	rootCerts := loadRootCerts(etcd, token)
 	serverCerts := loadServerCerts(etcd, token, domain, kubernetesServiceIp, rootCerts)
 	return rootCerts, serverCerts
