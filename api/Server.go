@@ -1,10 +1,10 @@
 package api
 
 import (
-	"errors"
 	"github.com/cedbossneo/pidalio/ssl"
 	"github.com/pressly/chi"
 	"net/http"
+	"fmt"
 )
 
 func mid(rootCerts ssl.RootCerts) func(http.Handler) http.Handler {
@@ -23,7 +23,8 @@ func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts) (http
 	r := chi.NewRouter()
 	r.Use(mid(rootCerts))
 
-	if cert, err := rootCerts.Certificate.MarshalPEM(); err != nil {
+	cert, err := rootCerts.Certificate.MarshalPEM();
+	if err != nil {
 		return nil, err
 	}
 	resCert := fmt.Sprintf(`{"cert": "%s"}`, cert)
@@ -31,12 +32,13 @@ func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts) (http
 		w.Write([]byte(resCert))
 	})
 
-	if cert, private, public, err := ssl.CreateAdminCertificate(rootCerts); err != nil {
+	cert, private, public, err := ssl.CreateAdminCertificate(rootCerts);
+	if err != nil {
 		return nil, err
 	}
 	resAdmin := fmt.Sprintf(`{"cert": "%s", "privateKey": "%s", "publicKey": "%s"}`, cert, private, public)
 	r.Get("/certs/admin", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(resCert))
+		w.Write([]byte(resAdmin))
 	})
 
 	resServer := fmt.Sprintf(`{"cert": "%s", "privateKey": "%s", "publicKey": "%s"}`, serverCerts.Certificate, serverCerts.PrivateKey, serverCerts.PublicKey)
@@ -57,7 +59,8 @@ func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts) (http
 			return
 		}
 
-		if cert, private, public, err := ssl.CreateNodeCertificate(rootCerts, fqdn, ip); err != nil {
+		cert, private, public, err := ssl.CreateNodeCertificate(rootCerts, fqdn, ip);
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

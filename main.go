@@ -5,6 +5,7 @@ import (
 	"github.com/cedbossneo/pidalio/api"
 	"github.com/cedbossneo/pidalio/etcd"
 	"github.com/cedbossneo/pidalio/ssl"
+	"net/http"
 )
 
 var (
@@ -21,7 +22,8 @@ func init() {
 func main() {
 	etcdClient := etcd.CreateEtcdClient([]string{*etcdUri})
 	rootCerts, serverCerts := ssl.LoadCerts(etcdClient, (*token)[0:16], *domain, *kubernetesServiceIp)
-	if handler, err := api.CreateAPIServer(rootCerts, serverCerts); err != nil {
+	handler, err := api.CreateAPIServer(rootCerts, serverCerts)
+	if err != nil {
 		panic(err)
 	}
 	http.ListenAndServe(*bindAddress, handler)
