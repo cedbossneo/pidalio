@@ -1,12 +1,12 @@
 package utils
 
 import (
-"crypto/aes"
-"crypto/cipher"
-"crypto/rand"
-"encoding/base64"
-"errors"
-"io"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
+	"errors"
+	"io"
 )
 
 func Encrypt(key string, text []byte) ([]byte, error) {

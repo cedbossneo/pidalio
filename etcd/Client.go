@@ -1,18 +1,18 @@
 package etcd
 
 import (
+	"github.com/coreos/etcd/client"
+	"golang.org/x/net/context"
 	"log"
 	"time"
-	"golang.org/x/net/context"
-	"github.com/coreos/etcd/client"
 )
 
 type EtcdClient struct {
-	keys client.KeysAPI
+	keys   client.KeysAPI
 	client client.Client
 }
 
-func CreateEtcdClient(uris []string) EtcdClient  {
+func CreateEtcdClient(uris []string) EtcdClient {
 	cfg := client.Config{
 		Endpoints:               uris,
 		Transport:               client.DefaultTransport,
@@ -23,13 +23,13 @@ func CreateEtcdClient(uris []string) EtcdClient  {
 		log.Fatal(err)
 	}
 	return EtcdClient{
-		keys: client.NewKeysAPI(c),
+		keys:   client.NewKeysAPI(c),
 		client: c,
 	}
 }
 
 func (etcd EtcdClient) SetKey(key string, value string) error {
-	log.Print("Setting ", key, " with ",value," value")
+	log.Print("Setting ", key, " with ", value, " value")
 	resp, err := etcd.keys.Set(context.Background(), key, value, nil)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (etcd EtcdClient) SetKey(key string, value string) error {
 }
 
 func (etcd EtcdClient) CreateKey(key string, value string) error {
-	log.Print("Creating ", key, " with ",value," value")
+	log.Print("Creating ", key, " with ", value, " value")
 	resp, err := etcd.keys.Create(context.Background(), key, value)
 	if err != nil {
 		return err

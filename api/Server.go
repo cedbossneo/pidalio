@@ -1,11 +1,10 @@
 package api
 
-import "github.com/cedbossneo/pidalio/ssl"
 import (
+	"errors"
+	"github.com/cedbossneo/pidalio/ssl"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"errors"
-	"github.com/cedbossneo/pidalio/etcd"
 )
 
 func checkErrors(c *gin.Context, err error) bool {
@@ -16,7 +15,7 @@ func checkErrors(c *gin.Context, err error) bool {
 	return false
 }
 
-func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, etcdClient etcd.EtcdClient, bindAddress string) {
+func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, bindAddress string) {
 	r := gin.Default()
 	r.Use(func(c *gin.Context) {
 		if c.Query("token")[0:16] != rootCerts.Token {
@@ -26,26 +25,30 @@ func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, etcdC
 		}
 	})
 	r.GET("/certs/ca", func(c *gin.Context) {
-		cert, err := rootCerts.Certificate.MarshalPEM();
-		if checkErrors(c, err) { return }
+		cert, err := rootCerts.Certificate.MarshalPEM()
+		if checkErrors(c, err) {
+			return
+		}
 		c.JSON(200, gin.H{
 			"cert": string(cert),
 		})
 	})
 	r.GET("/certs/admin", func(c *gin.Context) {
 		cert, private, public, err := ssl.CreateAdminCertificate(rootCerts)
-		if checkErrors(c, err) { return }
+		if checkErrors(c, err) {
+			return
+		}
 		c.JSON(200, gin.H{
-			"cert": string(cert),
+			"cert":       string(cert),
 			"privateKey": string(private),
-			"publicKey": string(public),
+			"publicKey":  string(public),
 		})
 	})
 	r.GET("/certs/server", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"cert": string(serverCerts.Certificate),
+			"cert":       string(serverCerts.Certificate),
 			"privateKey": string(serverCerts.PrivateKey),
-			"publicKey": string(serverCerts.PublicKey),
+			"publicKey":  string(serverCerts.PublicKey),
 		})
 	})
 	r.GET("/certs/node", func(c *gin.Context) {
@@ -60,11 +63,13 @@ func CreateAPIServer(rootCerts ssl.RootCerts, serverCerts ssl.ServerCerts, etcdC
 			return
 		}
 		cert, private, public, err := ssl.CreateNodeCertificate(rootCerts, fqdn, ip)
-		if checkErrors(c, err) { return }
+		if checkErrors(c, err) {
+			return
+		}
 		c.JSON(200, gin.H{
-			"cert": string(cert),
+			"cert":       string(cert),
 			"privateKey": string(private),
-			"publicKey": string(public),
+			"publicKey":  string(public),
 		})
 	})
 	r.Run(bindAddress)

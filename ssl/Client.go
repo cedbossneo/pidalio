@@ -1,27 +1,27 @@
 package ssl
 
 import (
+	"github.com/cedbossneo/pidalio/etcd"
+	"github.com/cedbossneo/pidalio/utils"
 	"github.com/sgallagher/openssl"
 	"log"
-	"github.com/cedbossneo/pidalio/etcd"
-	"time"
 	"math/big"
-	"github.com/cedbossneo/pidalio/utils"
+	"time"
 )
 
 type RootCerts struct {
 	Certificate *openssl.Certificate
-	privateKey openssl.PrivateKey
-	Token string
+	privateKey  openssl.PrivateKey
+	Token       string
 }
 
 type ServerCerts struct {
 	Certificate []byte
-	PrivateKey []byte
-	PublicKey []byte
+	PrivateKey  []byte
+	PublicKey   []byte
 }
 
-func GenerateKeypairs(bytes int) (openssl.PrivateKey, []byte, []byte){
+func GenerateKeypairs(bytes int) (openssl.PrivateKey, []byte, []byte) {
 	key, err := openssl.GenerateRSAKey(bytes)
 	if err != nil {
 		log.Fatal("Error while generating private key", err)
@@ -37,7 +37,7 @@ func GenerateKeypairs(bytes int) (openssl.PrivateKey, []byte, []byte){
 	return key, pemPrivateKey, pemPublicKey
 }
 
-func CreateRootKeys(etcd etcd.EtcdClient, token string) (openssl.PrivateKey) {
+func CreateRootKeys(etcd etcd.EtcdClient, token string) openssl.PrivateKey {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	encryptedKey, err := utils.Encrypt(token, pemPrivateKey)
 	if err != nil {
@@ -54,12 +54,12 @@ func CreateRootKeys(etcd etcd.EtcdClient, token string) (openssl.PrivateKey) {
 
 func CreateRootCertificate(etcd etcd.EtcdClient, token string, key openssl.PrivateKey) *openssl.Certificate {
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
-		CommonName: "kube-ca",
-		Country: "FR",
-		Expires: time.Hour * 24 * 10000,
-		Issued: 0,
+		CommonName:   "kube-ca",
+		Country:      "FR",
+		Expires:      time.Hour * 24 * 10000,
+		Issued:       0,
 		Organization: "Kubernetes",
-		Serial: big.NewInt(int64(1)),
+		Serial:       big.NewInt(int64(1)),
 	}, key)
 	if err != nil {
 		log.Fatal("Error while creating Root CA", err)
@@ -80,12 +80,12 @@ func CreateRootCertificate(etcd etcd.EtcdClient, token string, key openssl.Priva
 func CreateServerCertificate(etcd etcd.EtcdClient, token string, domain string, kubernetesServiceIp string, rootCerts RootCerts) ([]byte, []byte, []byte) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
-		CommonName: "kube-apiserver",
-		Country: "FR",
-		Expires: time.Hour * 24 * 365,
-		Issued: 0,
+		CommonName:   "kube-apiserver",
+		Country:      "FR",
+		Expires:      time.Hour * 24 * 365,
+		Issued:       0,
 		Organization: "Kubernetes",
-		Serial: big.NewInt(int64(1)),
+		Serial:       big.NewInt(int64(1)),
 	}, key)
 	if err != nil {
 		log.Fatal("Error while creating Server CA", err)
@@ -93,7 +93,7 @@ func CreateServerCertificate(etcd etcd.EtcdClient, token string, domain string, 
 	certificate.SetVersion(openssl.X509_V3)
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
-	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc." + domain + ", IP:" + kubernetesServiceIp)
+	certificate.AddExtension(openssl.NID_subject_alt_name, "DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc."+domain+", IP:"+kubernetesServiceIp)
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
@@ -121,12 +121,12 @@ func CreateServerCertificate(etcd etcd.EtcdClient, token string, domain string, 
 func CreateAdminCertificate(rootCerts RootCerts) ([]byte, []byte, []byte, error) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
-		CommonName: "kube-admin",
-		Country: "FR",
-		Expires: time.Hour * 24 * 365,
-		Issued: 0,
+		CommonName:   "kube-admin",
+		Country:      "FR",
+		Expires:      time.Hour * 24 * 365,
+		Issued:       0,
 		Organization: "Kubernetes",
-		Serial: big.NewInt(int64(1)),
+		Serial:       big.NewInt(int64(1)),
 	}, key)
 	if err != nil {
 		log.Print("Error while creating Admin CA", err)
@@ -146,12 +146,12 @@ func CreateAdminCertificate(rootCerts RootCerts) ([]byte, []byte, []byte, error)
 func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte, []byte, []byte, error) {
 	key, pemPrivateKey, pemPublicKey := GenerateKeypairs(2048)
 	certificate, err := openssl.NewCertificate(&openssl.CertificateInfo{
-		CommonName: fqdn,
-		Country: "FR",
-		Expires: time.Hour * 24 * 365,
-		Issued: 0,
+		CommonName:   fqdn,
+		Country:      "FR",
+		Expires:      time.Hour * 24 * 365,
+		Issued:       0,
 		Organization: "Kubernetes",
-		Serial: big.NewInt(int64(1)),
+		Serial:       big.NewInt(int64(1)),
 	}, key)
 	if err != nil {
 		log.Print("Error while creating Node CA", err)
@@ -160,7 +160,7 @@ func CreateNodeCertificate(rootCerts RootCerts, fqdn string, ip string) ([]byte,
 	certificate.SetVersion(openssl.X509_V3)
 	certificate.AddExtension(openssl.NID_key_usage, "nonRepudiation,digitalSignature,keyEncipherment")
 	certificate.AddExtension(openssl.NID_basic_constraints, "CA:FALSE")
-	certificate.AddExtension(openssl.NID_subject_alt_name, "IP:" + ip)
+	certificate.AddExtension(openssl.NID_subject_alt_name, "IP:"+ip)
 	certificate.SetIssuer(rootCerts.Certificate)
 	certificate.Sign(rootCerts.privateKey, openssl.EVP_SHA256)
 	cert, err := certificate.MarshalPEM()
@@ -199,16 +199,16 @@ func loadRootCerts(etcd etcd.EtcdClient, token string) RootCerts {
 		}
 		return RootCerts{
 			Certificate: cert,
-			privateKey: key,
-			Token: token,
+			privateKey:  key,
+			Token:       token,
 		}
 	} else {
 		key := CreateRootKeys(etcd, token)
 		cert := CreateRootCertificate(etcd, token, key)
 		return RootCerts{
 			Certificate: cert,
-			privateKey: key,
-			Token: token,
+			privateKey:  key,
+			Token:       token,
 		}
 	}
 }
@@ -241,15 +241,15 @@ func loadServerCerts(etcd etcd.EtcdClient, token string, domain string, kubernet
 		}
 		return ServerCerts{
 			Certificate: decryptedCert,
-			PrivateKey: decryptedKey,
-			PublicKey: decryptedPublicKey,
+			PrivateKey:  decryptedKey,
+			PublicKey:   decryptedPublicKey,
 		}
 	} else {
 		cert, key, publicKey := CreateServerCertificate(etcd, token, domain, kubernetesServiceIp, rootCerts)
 		return ServerCerts{
 			Certificate: cert,
-			PrivateKey: key,
-			PublicKey: publicKey,
+			PrivateKey:  key,
+			PublicKey:   publicKey,
 		}
 	}
 }
