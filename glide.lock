@@ -1,45 +1,33 @@
-hash: f4c4dbe28ce10735d21917ae9a035fb9d93910502bd2687dfa3353eb6705f177
-updated: 2016-09-26T14:52:21.244350633+02:00
+hash: e7fa460b0051bfb041b5b2dc2f6f234e1cfec63f720b56d65949a16a8a84f05a
+updated: 2017-04-03T20:19:26.440666369+02:00
 imports:
-- name: github.com/cedbossneo/pidalio
-  version: 350d4f512ffbe384e504429ee949c1e3612b536b
-  subpackages:
-  - k8s
 - name: github.com/coreos/etcd
-  version: e2d51961dd4abe6540c7d8e4aac0da7addf2e16e
+  version: f13bea0bb0cdb59be87112b40843bb105c68dbbe
   subpackages:
   - client
   - pkg/pathutil
   - pkg/types
-- name: github.com/gin-gonic/gin
-  version: 5caaac4c5c712a9e7a7de29e6c24ef46c753017f
+  - version
+- name: github.com/coreos/go-semver
+  version: 568e959cd89871e61434c1143528d9162da89ef2
   subpackages:
-  - binding
-  - render
-- name: github.com/golang/protobuf
-  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
-  subpackages:
-  - proto
-- name: github.com/manucorporat/sse
-  version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+  - semver
+- name: github.com/pressly/chi
+  version: 157587f33c258f3590967dfc7be2e75c0aa1cdf3
 - name: github.com/sgallagher/openssl
   version: 50fb77f227a1f611910aba7eb3041fa806e8ae6c
 - name: github.com/spacemonkeygo/openssl
-  version: a0b9b65330879b8c85bc7be7ab1608eafe318b5e
+  version: 535a60be661a3b43cec61e5807413de4be69ecad
   subpackages:
   - utils
 - name: github.com/spacemonkeygo/spacelog
-  version: f936fb050dc6b5fe4a96b485a6f069e8bdc59aeb
+  version: 16604ed16156d8634877b208e8acc9279f399777
 - name: github.com/ugorji/go
-  version: f1f1a805ed361a0e078bb537e4ea78cd37dcf065
+  version: ded73eae5db7e7a0ef6f55aace87a2873c5d2b74
   subpackages:
   - codec
 - name: golang.org/x/net
-  version: f315505cf3349909cdf013ea56690da34e96a451
+  version: b400c2eff1badec7022a8c8f5bea058b6315eed7
   subpackages:
   - context
-- name: gopkg.in/go-playground/validator.v8
-  version: c193cecd124b5cc722d7ee5538e945bdb3348435
-- name: gopkg.in/yaml.v2
-  version: 53feefa2559fb8dfa8d81baad31be332c97d6c77
 testImports: []
